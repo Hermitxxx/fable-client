@@ -1,5 +1,8 @@
 "use client";
 
+import { bookParchment, deleteBook } from "@/app/lib/actions/books";
+import DeleteSuccessToast from "@/components/DeleteToast";
+import { toast } from "@heroui/react";
 import Image from "next/image";
 import React, { useState } from "react";
 
@@ -48,22 +51,46 @@ const InkwellIcon = () => (
     </svg>
 );
 
+const triggerDeleteToast = (bookTitle) => {
+    toast(
+        <DeleteSuccessToast
+            title={bookTitle}
+            onUndo={() => {
+                onRestore();
+                toast.clear();
+            }}
+            onClose={() => toast.clear()}
+        />,
+        {
+            variant: "default",
+            hideIcon: true,           // Disable default info icon
+            hideCloseButton: true,    // Disable native outer close icon to prevent double-cross
+            classNames: {
+                base: "bg-transparent shadow-none p-0 border-0 outline-none max-w-none w-auto",
+                wrapper: "p-0"
+            }
+        }
+    );
+};
+
 export default function AdminEbooksPage({ ebooks }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedGenreFilter, setSelectedGenreFilter] = useState("all");
 
-    const handleToggleStatus = (bookId) => {
-        setEbooks(prevBooks =>
-            prevBooks.map(book =>
-                book._id === bookId
-                    ? { ...book, status: book.status === "Published" ? "Unpublished" : "Published" }
-                    : book
-            )
-        );
+    const handleToggleStatus = async (bookId, parchment) => {
+        const data = {
+            bookId,
+            parchment
+        }
+
+        console.log(data);
+
+        const res = await bookParchment(data)
     };
 
-    const handleDeleteEbook = (bookId) => {
-        setEbooks(prevBooks => prevBooks.filter(book => book._id.$oid !== bookId));
+    const handleDeleteEbook = async (bookId, bookTitle) => {
+        const res = await deleteBook(bookId)
+        triggerDeleteToast(bookTitle)
     };
 
     const filteredEbooks = ebooks.filter((book) => {
@@ -280,7 +307,7 @@ export default function AdminEbooksPage({ ebooks }) {
                                             <div className="flex items-center gap-2">
                                                 {/* Publish Toggle Button */}
                                                 <button
-                                                    onClick={() => handleToggleStatus(book._id)}
+                                                    onClick={() => handleToggleStatus(book._id, book.parchment === 'published' ? 'unpublished' : 'published')}
                                                     type="button"
                                                     className={`px-3 py-1.5 border-2 border-ink rounded-lg font-display text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-ink-sm active:translate-y-px ${book.parchment.toLowerCase() === "published"
                                                         ? "bg-ochre text-paper"
@@ -296,7 +323,7 @@ export default function AdminEbooksPage({ ebooks }) {
 
                                                 {/* Trash/Delete Button */}
                                                 <button
-                                                    onClick={() => handleDeleteEbook(book._id)}
+                                                    onClick={() => handleDeleteEbook(book._id, book.title)}
                                                     type="button"
                                                     className="p-1.5 border-2 border-ink rounded-lg bg-paper text-ink hover:bg-sun hover:text-paper hover:shadow-ink-sm transition-all cursor-pointer active:translate-y-px"
                                                     title="Deport Scroll from Platform"
@@ -397,7 +424,7 @@ export default function AdminEbooksPage({ ebooks }) {
                                 </span>
                                 <div className="flex items-center gap-2 justify-between">
                                     <button
-                                        onClick={() => handleToggleStatus(book._id)}
+                                        onClick={() => handleToggleStatus(book._id, book.parchment === 'published' ? 'unpublished' : 'published')}
                                         type="button"
                                         className={`px-3 py-2 border-2 border-ink rounded-lg font-display text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-ink-sm flex-1 text-center flex items-center justify-center gap-1.5 ${book.parchment.toLowerCase() === "published"
                                             ? "bg-ochre text-paper"
@@ -410,7 +437,7 @@ export default function AdminEbooksPage({ ebooks }) {
 
                                     <button
                                         type="button"
-                                        onClick={() => handleDeleteEbook(book._id)}
+                                        onClick={() => handleDeleteEbook(book._id, book.title)}
                                         className="p-2.5 border-2 border-ink rounded-lg bg-paper text-ink hover:bg-sun hover:text-paper hover:shadow-ink-sm transition-all cursor-pointer active:translate-y-px shrink-0"
                                         title="Revoke Scroll Passport"
                                     >

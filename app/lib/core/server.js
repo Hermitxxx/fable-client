@@ -25,14 +25,19 @@ export async function secureFetch(path) {
 
 // data mutation functions
 
-export async function serverMutate(path, data, method = 'POST') {
-    const res = await fetch(`${API_BASE_URL}${path}`, {
+export async function serverMutate(path, data = null, method = 'POST') {
+    const options = {
         method: method,
         headers: {
             'content-type': 'application/json'
         },
-        body: JSON.stringify(data)
-    })
+    }
+
+    if (data !== null) {
+        options.body = JSON.stringify(data)
+    }
+
+    const res = await fetch(`${API_BASE_URL}${path}`, options)
 
     return handleStatusCode(res)
 }

@@ -48,9 +48,9 @@ export default function AllUsers({ allUsers: users }) {
         const res = await updateUserRole(data)
     };
 
-    // const handleDeleteUser = (userId) => {
-    //     setUsers(prevUsers => prevUsers.filter(user => user._id.$oid !== userId));
-    // };
+    const handleDeleteUser = (userId) => {
+        setUsers(prevUsers => prevUsers.filter(user => user._id.$oid !== userId));
+    };
 
     const filteredUsers = users.filter((user) => {
         const matchesSearch =
