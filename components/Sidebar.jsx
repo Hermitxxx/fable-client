@@ -1,0 +1,262 @@
+'use client';
+
+import React from "react";
+import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+// import { authClient } from '@/lib/auth-client';
+import {
+    House, Briefcase, Bell, User, Settings,
+    Search, Bookmark, FileText, CreditCard,
+    LogOut, Menu, Building, Users, ArrowLeft,
+    LayoutGrid,
+    User2Icon
+} from 'lucide-react';
+import { Button, Drawer, Avatar } from "@heroui/react";
+import Link from "next/link";
+import toast from 'react-hot-toast';
+
+const CustomLogOutIcon = () => (
+    <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="w-5 h-5 shrink-0"
+        aria-hidden="true"
+    >
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <polyline points="16 17 21 12 16 7" />
+        <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+);
+
+const WaveCrestLogo = () => (
+    <svg viewBox="0 0 100 100" className="w-8 h-8 fill-current text-[#E85D35]" aria-hidden="true">
+        <path d="M10,80 C30,80 35,50 50,50 C65,50 70,75 90,75 C95,75 98,70 100,65 L100,90 L0,90 L0,70 C3,75 6,80 10,80 Z" />
+        <path d="M5,60 C25,60 30,30 50,30 C70,30 75,65 95,65 C97,65 99,62 100,58 L100,75 C98,78 95,80 90,80 C70,80 65,55 50,55 C35,55 30,85 10,85 C6,85 3,82 0,78 L0,55 C2,58 4,60 5,60 Z" />
+        <circle cx="28" cy="35" r="3" />
+        <circle cx="48" cy="20" r="2.5" />
+        <circle cx="72" cy="40" r="3.5" />
+    </svg>
+);
+
+const recruiterNavLinks = [
+    { icon: House, href: "/dashboard/recruiter", label: "Home" },
+    { icon: Search, href: "/dashboard/recruiter/jobs", label: "Jobs" },
+    { icon: Briefcase, href: "/dashboard/recruiter/jobs/new", label: "Post A Job" },
+    { icon: Building, href: "/dashboard/recruiter/company", label: "Company Profile" },
+    { icon: Settings, href: "/dashboard/recruiter/settings", label: "Settings" },
+];
+
+const seekerNavLinks = [
+    { icon: House, href: "/dashboard/seeker", label: "Dashboard" },
+    { icon: Search, href: "/dashboard/seeker/jobs", label: "Jobs" },
+    { icon: Bookmark, href: "/dashboard/seeker/saved-jobs", label: "Saved Jobs" },
+    { icon: FileText, href: "/dashboard/seeker/applications", label: "Applications" },
+    { icon: CreditCard, href: "/dashboard/seeker/billing", label: "Billing" },
+    { icon: Settings, href: "/dashboard/seeker/settings", label: "Settings" },
+];
+
+const adminNavLinks = [
+    { icon: LayoutGrid, href: "/dashboard/admin", label: "Dashboard" },
+    { icon: Users, href: "/dashboard/admin/users", label: "Users" },
+    { icon: Building, href: "/dashboard/admin/ebooks", label: "E-books" },
+    { icon: Briefcase, href: "/dashboard/admin/transactions", label: "Transactions" },
+    { icon: User2Icon, href: "/dashboard/admin/profile", label: "Profile" },
+]
+
+const publicLinks = [
+    { icon: House, href: "/", label: "Home" },
+    { icon: Search, href: "/books", label: "Browse Scribes" },
+    { icon: Building, href: "/writers", label: "Sribe Masters" },
+    { icon: CreditCard, href: "/about", label: "About Fable" },
+];
+
+const navLinksMap = {
+    seeker: seekerNavLinks,
+    recruiter: recruiterNavLinks,
+    admin: adminNavLinks,
+};
+
+export default function Sidebar() {
+    const pathname = usePathname();
+    const [mobileOpen, setMobileOpen] = useState(false);
+
+    // const { data: session } = authClient.useSession();
+    // const user = session?.user || propUser;
+    const role = 'admin';
+    const navItems = navLinksMap[role] || seekerNavLinks;
+
+    const isActive = (href) => {
+        if (href === '/dashboard/recruiter' || href === '/dashboard/seeker' || href === '/dashboard/admin') {
+            return pathname === href;
+        }
+        return pathname.startsWith(href);
+    };
+
+    const navContent = (
+        <nav className="flex flex-col gap-1 px-3" aria-label="Dashboard navigation">
+            {navItems.map((item) => {
+                const active = isActive(item.href);
+                return (
+                    <Link
+                        key={item.label}
+                        href={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${active
+                            ? 'bg-sun text-paper shadow-sm shadow-brand/5'
+                            : 'text-zinc-400 hover:bg-sun/50 hover:text-zinc-200'
+                            }`}
+                        aria-current={active ? 'page' : undefined}
+                    >
+                        <item.icon className={`size-5 shrink-0 ${active ? 'text-brand' : 'text-zinc-500'}`} />
+                        {item.label}
+                    </Link>
+                );
+            })}
+        </nav>
+    );
+
+    const publicNav = (
+        <div className="px-3">
+            <p className="mb-2 px-3 text-[11px] font-semibold uppercase tracking-widest text-zinc-600">
+                Public
+            </p>
+            <nav className="flex flex-col gap-1" aria-label="Public pages">
+                {publicLinks.map((item) => (
+                    <Link
+                        key={item.label}
+                        href={item.href}
+                        onClick={() => setMobileOpen(false)}
+                        className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 text-zinc-400 hover:bg-sun/50 hover:text-zinc-200`}
+                    >
+                        <item.icon className="size-5 shrink-0 text-zinc-600" />
+                        {item.label}
+                    </Link>
+                ))}
+            </nav>
+        </div>
+    );
+
+    // const userInfo = user ? (
+    //     <div className="border-b border-white/10 px-4 py-5">
+    //         <div className="flex items-center gap-3">
+    //             <Avatar
+    //                 src={user?.image || user?.avatar || ''}
+    //                 alt={user?.name || 'User'}
+    //                 size="sm"
+    //                 fallback={user?.name?.charAt(0)?.toUpperCase() || 'U'}
+    //                 className="shrink-0"
+    //             />
+    //             <div className="min-w-0 flex-1">
+    //                 <p className="truncate text-sm font-semibold text-zinc-100">
+    //                     {user?.name || 'User'}
+    //                 </p>
+    //                 <p className="truncate text-xs text-zinc-500">
+    //                     {user?.email || ''}
+    //                 </p>
+    //             </div>
+    //             <span className="shrink-0 rounded-md border border-brand/20 bg-brand/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-brand">
+    //                 {role}
+    //             </span>
+    //         </div>
+    //     </div>
+    // ) : null;
+
+    const branding = (
+        <div className="flex items-center gap-3 pb-5">
+            <WaveCrestLogo />
+            <div>
+                <span className="font-display font-extrabold text-2xl tracking-widest block text-ink">FABLE</span>
+                <span className="text-[9px] uppercase tracking-wider font-semibold text-ink/60 block font-display">
+                    Imperial Vault Admin
+                </span>
+            </div>
+        </div>
+    );
+
+    const desktopSidebar = (
+        <aside
+            className="hidden bg-paper min-w-72 shrink-0 flex-col border-r-ink min-h-screen top-0 p-6 md:flex"
+            aria-label="Fable Dashboard Sidebar"
+        >
+            {/* Branding Segment */}
+            <div className=" border-ink/20">
+                {branding}
+            </div>
+
+            <div className="flex-1">
+                {/* Main Navigation Segment */}
+                <div className="overflow-y-auto py-6 space-y-2 select-none">
+                    {navContent}
+                </div>
+
+                {/* Public / Auxiliary Navigation Segment */}
+                <div className="py-4 border-t-2 border-dashed border-ink/15">
+                    {publicNav}
+                </div>
+            </div>
+
+            {/* Footer & Action Panel */}
+            <div>
+                <button
+                    type="button"
+                    className="btn-ghost text-sm py-2 px-4 text-center"
+                >
+                    <CustomLogOutIcon />
+                    <span>Sign Out</span>
+                </button>
+            </div>
+        </aside>
+    );
+
+    return (
+        <>
+            {desktopSidebar}
+
+            {/* Mobile trigger */}
+            {/* <Button
+                className="sticky left-3 top-3 z-50 flex size-10 items-center justify-center rounded-xl border border-white/10 bg-zinc-900/80 backdrop-blur-xl md:hidden"
+                variant="flat"
+                isIconOnly
+                onPress={() => setMobileOpen(!mobileOpen)}
+                aria-label="Open navigation menu"
+            >
+                <Menu className="size-5 text-zinc-400" />
+            </Button> */}
+
+            {/* Mobile drawer */}
+            <Drawer isOpen={mobileOpen} onOpenChange={setMobileOpen}>
+                <Drawer.Backdrop />
+                <Drawer.Content placement="left" className="bg-zinc-950">
+                    <Drawer.Dialog>
+                        <Drawer.CloseTrigger />
+                        <Drawer.Header>
+                            <Drawer.Heading>
+                                <span className="text-lg font-bold text-white">
+                                    Hire<span className="text-brand">Loop</span>
+                                </span>
+                            </Drawer.Heading>
+                        </Drawer.Header>
+                        <Drawer.Body>
+                            {/* {userInfo} */}
+                            <div className="mt-4">{navContent}</div>
+                            <div className="mt-6">{publicNav}</div>
+                            <div className="mt-4 border-t border-white/10 pt-4">
+                                <button
+                                    onClick={() => { setMobileOpen(false); }}
+                                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-800/50"
+                                >
+                                    <LogOut className="size-5" />
+                                    Sign Out
+                                </button>
+                            </div>
+                        </Drawer.Body>
+                    </Drawer.Dialog>
+                </Drawer.Content>
+            </Drawer>
+        </>
+    );
+}
