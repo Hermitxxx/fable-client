@@ -1,6 +1,6 @@
 "use client";
 
-import { updateUserRole } from "@/app/lib/actions/users";
+import { deleteUser, updateUserRole } from "@/app/lib/actions/users";
 import React, { useState } from "react";
 
 const TrashIcon = () => (
@@ -48,8 +48,8 @@ export default function AllUsers({ allUsers: users }) {
         const res = await updateUserRole(data)
     };
 
-    const handleDeleteUser = (userId) => {
-        setUsers(prevUsers => prevUsers.filter(user => user._id.$oid !== userId));
+    const handleDeleteUser = async (userId) => {
+        const res = await deleteUser(userId)
     };
 
     const filteredUsers = users.filter((user) => {

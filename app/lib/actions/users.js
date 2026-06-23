@@ -7,3 +7,11 @@ export async function updateUserRole(data) {
     revalidatePath('/dashboard/admin/users')
     return result
 }
+
+// delete a user
+export async function deleteUser(id) {
+    const result = await serverMutate(`/api/users/${id}`, null, 'DELETE')
+    revalidatePath('/dashboard/admin/books')
+    revalidatePath('/books')
+    return result
+}
