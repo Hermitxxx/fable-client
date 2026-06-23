@@ -9,7 +9,7 @@ const DashboardLayout = ({ children }) => {
         <>
             <div className="flex min-h-screen">
                 <Sidebar></Sidebar>
-                <div className='flex-1 overflow-y-scroll'>
+                <div className='flex-1 overflow-y-scroll max-h-screen'>
                     {/* <Navbar></Navbar> */}
                     {children}
                 </div>

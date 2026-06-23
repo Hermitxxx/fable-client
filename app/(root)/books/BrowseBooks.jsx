@@ -72,6 +72,7 @@ export default function BrowseBooksPage({ books }) {
 
   const featuredBook = books.find((b) => b.rating > 4.8);
 
+
   return (
     <main className="min-h-[100dvh] mt-16 bg-paper text-ink font-display py-8 px-4 md:px-8 max-w-[1280px] mx-auto relative">
 
@@ -178,11 +179,11 @@ export default function BrowseBooksPage({ books }) {
           <div className="flex justify-between items-center border-b-2 border-ink/10 pb-4">
             <h2 className="section-heading text-xl font-extrabold tracking-wider">AVAILABLE CHRONICLES</h2>
             <span className="text-xs font-bold bg-wave text-paper px-3 py-1 rounded-md border-2 border-ink">
-              {books.length} SCROLLS FOUND
+              {books.filter(book => book.parchment.toLowerCase() === 'published').length} SCROLLS FOUND
             </span>
           </div>
 
-          {books.length === 0 ? (
+          {books.filter(book => book.parchment.toLowerCase() === 'published') === 0 ? (
             <div className="text-center py-16 border-2 border-dashed border-ink/30 rounded-lg p-8 bg-paper/50">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border-3 border-ink bg-sun text-paper shadow-ink-sm mx-auto mb-4">
                 <BookOpenIcon />
@@ -204,100 +205,15 @@ export default function BrowseBooksPage({ books }) {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">
-              {books.map((book) => (
-                <BookCard key={book._id} book={book} />
-              ))}
+              {
+                books.filter(book => book.parchment.toLowerCase() === 'published').map((book) => <BookCard book={book} key={book._id}></BookCard>)
+              }
             </div>
           )}
         </div>
       </section>
 
       { }
-      {/* Lightbox Scroll Preview Overlay */}
-      {activeBookPreview && (
-        <div className="fixed inset-0 z-300 bg-ink/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          {/* Scroll Canvas Frame */}
-          <div className="w-full max-w-170 bg-paper border-ink rounded-lg shadow-ink overflow-hidden my-8 relative flex flex-col max-h-[90vh]">
-
-            {/* Scroll Wooden Handles Graphic Aesthetic */}
-            <div className="bg-wave text-paper px-6 py-4 flex justify-between items-center border-b-3 border-ink">
-              <div className="flex items-center gap-2">
-                <GoldInkBoltIcon />
-                <span className="font-bold text-sm tracking-widest uppercase">
-                  UNFOLDED ORIGINAL PREVIEW
-                </span>
-              </div>
-              <button
-                onClick={() => setActiveBookPreview(null)}
-                className="text-paper hover:text-sun transition-colors p-1 cursor-pointer"
-                aria-label="Close Scroll"
-              >
-                <CrossIcon />
-              </button>
-            </div>
-
-            {/* Scroll body contents on Washi Paper */}
-            <div className="p-6 md:p-8 overflow-y-auto flex-1 space-y-6">
-
-              {/* Cover mini banner */}
-              <div className="flex flex-col sm:flex-row gap-6 items-center border-b-2 border-ink/10 pb-6">
-                <div className="w-[120px] h-[168px] border-2 border-ink shadow-ink-sm rounded-md overflow-hidden shrink-0 relative bg-[#0D0D15]/10">
-                  <img
-                    src={activeBookPreview.coverImage}
-                    alt={activeBookPreview.title}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="space-y-2 text-center sm:text-left">
-                  <span className="text-xs font-bold text-sun tracking-widest uppercase bg-wave/10 px-2 py-1 rounded">
-                    {activeBookPreview.genre}
-                  </span>
-                  <h2 className="text-xl font-extrabold text-ink">
-                    {activeBookPreview.title}
-                  </h2>
-                  <p className="text-xs text-ink/70 font-semibold">
-                    Brushwork by Scribe {activeBookPreview.writerName}
-                  </p>
-                  <p className="text-xs text-ochre font-medium flex items-center justify-center sm:justify-start gap-1">
-                    <StarIcon /> {activeBookPreview.rating} Rating ({activeBookPreview.purchaseCount} Active Readers)
-                  </p>
-                </div>
-              </div>
-
-              {/* Dynamic Reading Content block (Washi Style text column) */}
-              <div className="space-y-3 bg-sun/5 p-4 rounded-md border-l-4 border-[#E85D35]">
-                <h4 className="text-xs font-extrabold tracking-widest text-sun uppercase">
-                  MANUSCRIPT EXCERPT
-                </h4>
-                <p className="text-xs md:text-sm leading-relaxed text-ink/90 italic font-medium">
-                  &quot;{activeBookPreview.fullContent}&quot;
-                </p>
-              </div>
-
-              {/* Platform Call to Action */}
-              <div className="text-center pt-4">
-                <button
-                  onClick={() => console.log(`Unlocking scroll: ${activeBookPreview.title}`)}
-                  className="btn-primary shadow-ink-sm"
-                >
-                  <BookOpenIcon /> ACQUIRE FULL VERIFIED ACCESS ({activeBookPreview.price === 0 ? "Free" : `¥${activeBookPreview.price.toFixed(2)}`})
-                </button>
-                <p className="text-[10px] text-ink/50 mt-2">
-                  Secures your secure blockchain digital archive certificate and funds Scribe {activeBookPreview.writerName}.
-                </p>
-              </div>
-
-            </div>
-
-            {/* Scroll Base Bar */}
-            <div className="bg-wave py-3 text-center border-t-3 border-ink">
-              <span className="font-display text-[9px] tracking-widest text-paper/60 uppercase">
-                EDO PERIOD ORIGINAL • DIGITAL ARCHIVE • CREATED {new Date(activeBookPreview.createdAt).getFullYear()}
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
 
     </main>
   );

@@ -1,8 +1,7 @@
 "use client";
 
 import { updateUserRole } from "@/app/lib/actions/users";
-import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 const TrashIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4 shrink-0" aria-hidden="true">
@@ -38,9 +37,6 @@ export default function AllUsers({ allUsers: users }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedRoleFilter, setSelectedRoleFilter] = useState("all");
 
-    const router = useRouter()
-    const pathname = usePathname()
-
     const handleRoleChange = async (userId, newRole) => {
         const data = {
             userId,
@@ -50,8 +46,6 @@ export default function AllUsers({ allUsers: users }) {
         console.log(data);
 
         const res = await updateUserRole(data)
-        console.log(res);
-        router.refresh()
     };
 
     // const handleDeleteUser = (userId) => {
