@@ -1,6 +1,6 @@
 import { Cinzel } from "next/font/google";
 import "./globals.css";
-import { Toast } from "@heroui/react";
+import { Toaster } from "react-hot-toast";
 
 const cinzel = Cinzel({
   variable: "--font-display",
@@ -19,7 +19,7 @@ export default function RootLayout({ children }) {
     <html lang="en" className={`${cinzel.variable} h-full antialiased`}>
       <body
         className="min-h-full flex flex-col">{children}
-        <Toast.Provider />
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );

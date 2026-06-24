@@ -1,6 +1,7 @@
 "use client";
 
 import { deleteUser, updateUserRole } from "@/app/lib/actions/users";
+import { showUserDeletedToast } from "@/components/DeleteToast";
 import React, { useState } from "react";
 
 const TrashIcon = () => (
@@ -48,8 +49,9 @@ export default function AllUsers({ allUsers: users }) {
         const res = await updateUserRole(data)
     };
 
-    const handleDeleteUser = async (userId) => {
+    const handleDeleteUser = async (userId, userName) => {
         const res = await deleteUser(userId)
+        showUserDeletedToast(userName)
     };
 
     const filteredUsers = users.filter((user) => {
@@ -277,7 +279,7 @@ export default function AllUsers({ allUsers: users }) {
 
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleDeleteUser(user._id)}
+                                                    onClick={() => handleDeleteUser(user._id, user.name)}
                                                     className="p-1.5 border-2 border-ink rounded-lg bg-paper text-ink hover:bg-sun hover:text-paper hover:shadow-ink-sm transition-all cursor-pointer active:translate-y-px"
                                                     title="Revoke Covenant Passport"
                                                 >
@@ -391,7 +393,7 @@ export default function AllUsers({ allUsers: users }) {
 
                                     <button
                                         type="button"
-                                        onClick={() => handleDeleteUser(user._id)}
+                                        onClick={() => handleDeleteUser(user._id, user.name)}
                                         className="p-2.5 border-2 border-ink rounded-lg bg-paper text-ink hover:bg-sun hover:text-paper hover:shadow-ink-sm transition-all cursor-pointer active:translate-y-px shrink-0"
                                         title="Revoke Covenant Passport"
                                     >

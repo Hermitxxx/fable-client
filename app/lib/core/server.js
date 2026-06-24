@@ -16,7 +16,7 @@ export async function secureFetch(path) {
     try {
         const res = await fetch(`${API_BASE_URL}${path}`)
         const data = await res.json()
-        return { success: true, data: data }
+        return data
     } catch (error) {
         return { success: false, message: 'Something went wrong' }
     }

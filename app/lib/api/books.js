@@ -15,12 +15,13 @@ export async function getAllBooks() {
 
 // get featured books
 export async function getBookDetailsById(id) {
-    const { data } = await secureFetch(`/api/books/${id}`)
+    const data = await secureFetch(`/api/books/${id}`)
     return data;
 }
 
-// get a writer's books 
+// get a writer's books
 export async function getBooksByWriterId(id) {
-    const { data } = await secureFetch(`/api/writer-books?writerId=${id}`)
+    const data = await secureFetch(`/api/writer-books?writerId=${id}`)
+    console.log(data);
     return data;
 }

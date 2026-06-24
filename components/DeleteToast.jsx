@@ -1,50 +1,77 @@
 "use client";
 
-import React from "react";
+import toast from "react-hot-toast";
+import { Trash2, X } from "lucide-react";
 
-// A custom cracked red wax stamp seal representing an unsealed/revoked book scroll
-const TrashSealIcon = () => (
-    <svg
-        viewBox="0 0 40 40"
-        className="w-10 h-10 text-[#E85D35] fill-current shrink-0 animate-pulse"
-        aria-hidden="true"
-    >
-        {/* Stamp circle border */}
-        <circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" strokeWidth="2.5" strokeDasharray="32 4 12 4" />
-        <circle cx="20" cy="20" r="13" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="6 3" />
-        {/* Fractures slicing through stamp representing deletion/revocation */}
-        <path d="M8,20 L32,20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M20,8 L20,32" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        {/* Interior kanji/traditional stamp character strokes */}
-        <path d="M16,14 L24,26 M24,14 L16,26" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
-);
-
-export default function DeleteSuccessToast({ title, onClose }) {
-    return (
-        <div className="max-w-md w-full sm:w-[420px] bg-paper border-3 border-ink shadow-ink p-5 rounded-lg flex items-start gap-4 transition-all duration-300">
-
-            {/* Dynamic Red Wax Stamp Seal Icon */}
-            <TrashSealIcon />
-
-            {/* Toast Content Area */}
-            <div className="flex-1 space-y-1">
-                <h4 className="text-sun font-display font-black text-sm uppercase tracking-wider leading-none mb-1.5">
-                    Manuscript Revoked
-                </h4>
-                <p className="text-ink/80 text-[11px] font-medium leading-relaxed font-display">
-                    The scroll <span className="font-bold">&quot;{title.toUpperCase()}&quot;</span> has been unsealed and removed from the library vault registry.
-                </p>
-            </div>
-
-            {/* Close/Dismiss Button */}
-            <button
-                onClick={onClose}
-                className="text-ink/40 hover:text-ink font-bold text-xs p-1 cursor-pointer transition-colors"
-                aria-label="Dismiss Notification"
-            >
-                ✕
-            </button>
+/**
+ * Fire this from your delete handler:
+ *
+ *   await deleteUser(user.id);
+ *   showUserDeletedToast(user.name);
+ *
+ * Requires <Toaster position="top-right" /> mounted once in your layout.
+ */
+export function showUserDeletedToast(userName, { duration = 4000 } = {}) {
+  toast.custom(
+    (t) => (
+      <div
+        className={`flex w-[360px] items-start gap-3 rounded-lg border-ink bg-paper p-4 shadow-ink ${t.visible ? "toast-in" : "toast-out"
+          }`}
+        style={{ fontFamily: "var(--font-display)" }}
+        role="status"
+      >
+        {/* Hanko-style ink stamp, slightly canted like a hand-pressed seal */}
+        <div className="flex h-10 w-10 shrink-0 -rotate-6 items-center justify-center rounded-full border-ink-thin bg-sun">
+          <Trash2 size={18} className="text-ink" strokeWidth={2.5} />
         </div>
-    );
+
+        <div className="min-w-0 flex-1 pt-0.5">
+          <p className="text-[0.95rem] font-semibold leading-tight text-ink">
+            Successfully deleted.
+          </p>
+          <p className="mt-0.5 truncate text-sm text-ink/70">
+            <span className="font-medium text-sun">{userName}</span> was removed from the system.
+          </p>
+        </div>
+
+        <button
+          onClick={() => toast.dismiss(t.id)}
+          aria-label="Dismiss"
+          className="shrink-0 text-ink/50 transition-colors hover:text-ink"
+        >
+          <X size={16} />
+        </button>
+
+        <style jsx>{`
+          .toast-in {
+            animation: toast-enter 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+          }
+          .toast-out {
+            animation: toast-exit 180ms ease-in both;
+          }
+          @keyframes toast-enter {
+            from {
+              opacity: 0;
+              transform: translateY(-14px) scale(0.96);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+          }
+          @keyframes toast-exit {
+            from {
+              opacity: 1;
+              transform: translateY(0) scale(1);
+            }
+            to {
+              opacity: 0;
+              transform: translateY(-8px) scale(0.96);
+            }
+          }
+        `}</style>
+      </div>
+    ),
+    { duration }
+  );
 }

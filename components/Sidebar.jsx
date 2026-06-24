@@ -14,6 +14,8 @@ import {
 import { Button, Drawer, Avatar } from "@heroui/react";
 import Link from "next/link";
 import toast from 'react-hot-toast';
+import { PiBooks } from "react-icons/pi";
+import { MdPublish } from "react-icons/md";
 
 const CustomLogOutIcon = () => (
     <svg
@@ -42,7 +44,7 @@ const WaveCrestLogo = () => (
     </svg>
 );
 
-const recruiterNavLinks = [
+const seekerNavLinks = [
     { icon: House, href: "/dashboard/recruiter", label: "Home" },
     { icon: Search, href: "/dashboard/recruiter/jobs", label: "Jobs" },
     { icon: Briefcase, href: "/dashboard/recruiter/jobs/new", label: "Post A Job" },
@@ -50,19 +52,17 @@ const recruiterNavLinks = [
     { icon: Settings, href: "/dashboard/recruiter/settings", label: "Settings" },
 ];
 
-const seekerNavLinks = [
-    { icon: House, href: "/dashboard/seeker", label: "Dashboard" },
-    { icon: Search, href: "/dashboard/seeker/jobs", label: "Jobs" },
-    { icon: Bookmark, href: "/dashboard/seeker/saved-jobs", label: "Saved Jobs" },
-    { icon: FileText, href: "/dashboard/seeker/applications", label: "Applications" },
-    { icon: CreditCard, href: "/dashboard/seeker/billing", label: "Billing" },
-    { icon: Settings, href: "/dashboard/seeker/settings", label: "Settings" },
+const writerNavlinks = [
+    { icon: LayoutGrid, href: "/dashboard/writer", label: "Dashboard" },
+    { icon: MdPublish, href: "/dashboard/writer/add-ebook", label: "Publish Scribe" },
+    { icon: PiBooks, href: "/dashboard/writer/ebooks", label: "E-books" },
+    { icon: User2Icon, href: "/dashboard/writer/profile", label: "Profile" },
 ];
 
 const adminNavLinks = [
     { icon: LayoutGrid, href: "/dashboard/admin", label: "Dashboard" },
     { icon: Users, href: "/dashboard/admin/users", label: "Users" },
-    { icon: Building, href: "/dashboard/admin/ebooks", label: "E-books" },
+    { icon: PiBooks, href: "/dashboard/admin/ebooks", label: "E-books" },
     { icon: Briefcase, href: "/dashboard/admin/transactions", label: "Transactions" },
     { icon: User2Icon, href: "/dashboard/admin/profile", label: "Profile" },
 ]
@@ -76,7 +76,7 @@ const publicLinks = [
 
 const navLinksMap = {
     seeker: seekerNavLinks,
-    recruiter: recruiterNavLinks,
+    writer: writerNavlinks,
     admin: adminNavLinks,
 };
 
@@ -86,11 +86,11 @@ export default function Sidebar() {
 
     // const { data: session } = authClient.useSession();
     // const user = session?.user || propUser;
-    const role = 'admin';
+    const role = 'writer';
     const navItems = navLinksMap[role] || seekerNavLinks;
 
     const isActive = (href) => {
-        if (href === '/dashboard/recruiter' || href === '/dashboard/seeker' || href === '/dashboard/admin') {
+        if (href === '/dashboard/reader' || href === '/dashboard/writer' || href === '/dashboard/admin') {
             return pathname === href;
         }
         return pathname.startsWith(href);
