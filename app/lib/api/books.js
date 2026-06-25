@@ -7,13 +7,13 @@ export async function getFeaturedBooks() {
     return data;
 }
 
-// get featured books
+// get all books
 export async function getAllBooks() {
     const { data } = await openFetch('/api/books')
     return data;
 }
 
-// get featured books
+// get book details by id
 export async function getBookDetailsById(id) {
     const data = await secureFetch(`/api/books/${id}`)
     return data;

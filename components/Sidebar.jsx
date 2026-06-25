@@ -9,7 +9,8 @@ import {
     Search, Bookmark, FileText, CreditCard,
     LogOut, Menu, Building, Users, ArrowLeft,
     LayoutGrid,
-    User2Icon
+    User2Icon,
+    BookmarkIcon
 } from 'lucide-react';
 import { Button, Drawer, Avatar } from "@heroui/react";
 import Link from "next/link";
@@ -44,18 +45,16 @@ const WaveCrestLogo = () => (
     </svg>
 );
 
-const seekerNavLinks = [
-    { icon: House, href: "/dashboard/recruiter", label: "Home" },
-    { icon: Search, href: "/dashboard/recruiter/jobs", label: "Jobs" },
-    { icon: Briefcase, href: "/dashboard/recruiter/jobs/new", label: "Post A Job" },
-    { icon: Building, href: "/dashboard/recruiter/company", label: "Company Profile" },
-    { icon: Settings, href: "/dashboard/recruiter/settings", label: "Settings" },
+const readerNavLinks = [
+    { icon: House, href: "/dashboard/reader", label: "Dashboard" },
+    { icon: BookmarkIcon, href: "/dashboard/reader/bookmarks", label: "Bookmarks" },
 ];
 
 const writerNavlinks = [
     { icon: LayoutGrid, href: "/dashboard/writer", label: "Dashboard" },
     { icon: MdPublish, href: "/dashboard/writer/add-ebook", label: "Publish Scribe" },
     { icon: PiBooks, href: "/dashboard/writer/ebooks", label: "E-books" },
+    { icon: BookmarkIcon, href: "/dashboard/writer/bookmarks", label: "Bookmarks" },
     { icon: User2Icon, href: "/dashboard/writer/profile", label: "Profile" },
 ];
 
@@ -75,7 +74,7 @@ const publicLinks = [
 ];
 
 const navLinksMap = {
-    seeker: seekerNavLinks,
+    seeker: readerNavLinks,
     writer: writerNavlinks,
     admin: adminNavLinks,
 };
@@ -86,8 +85,8 @@ export default function Sidebar() {
 
     // const { data: session } = authClient.useSession();
     // const user = session?.user || propUser;
-    const role = 'writer';
-    const navItems = navLinksMap[role] || seekerNavLinks;
+    const role = 'reader';
+    const navItems = navLinksMap[role] || readerNavLinks;
 
     const isActive = (href) => {
         if (href === '/dashboard/reader' || href === '/dashboard/writer' || href === '/dashboard/admin') {

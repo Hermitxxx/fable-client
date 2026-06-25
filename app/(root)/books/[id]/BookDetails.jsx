@@ -1,6 +1,7 @@
 "use client";
 
-import { getBooksByWriterId } from "@/app/lib/api/books";
+import { addToBookmark } from "@/app/lib/actions/bookmark";
+import { authClient } from "@/app/lib/auth-client";
 import OtherWorks from "@/components/OtherWorks";
 import { Button } from "@heroui/react";
 import Image from "next/image";
@@ -79,6 +80,26 @@ export default function BookDetails({ book }) {
     const [pageState, setPageState] = useState("LOADED"); // Options: "LOADED", "LOADING", "NOT_FOUND"
     const [isBookmarked, setIsBookmarked] = useState(false);
     const [isPurchased, setIsPurchased] = useState(false);
+
+    const {
+        data: session,
+        isPending, //loading state
+        error, //error object
+        refetch //refetch the session
+    } = authClient.useSession()
+
+    const user = session?.user
+
+    // handle bookmark fucntions
+    async function handleBookmark(bookId) {
+        const data = {
+            userId: user?.id,
+            bookId: bookId
+        }
+
+        const res = await addToBookmark(data)
+        console.log(data);
+    }
 
     // Sync simulated purchased state with role changes for better UX flow
     useEffect(() => {
@@ -203,7 +224,7 @@ export default function BookDetails({ book }) {
 
                     {/* Bookmark Woodblock button */}
                     <button
-                        onClick={() => setIsBookmarked(!isBookmarked)}
+                        onClick={() => handleBookmark(book._id)}
                         className={`w-70 md:w-[320px] mt-6 flex items-center justify-center gap-2 py-3 border-2 rounded-lg font-display text-xs font-bold uppercase transition-all shadow-ink-sm cursor-pointer ${isBookmarked
                             ? "bg-ochre text-paper border-ink"
                             : "bg-transparent text-ink border-ink hover:bg-ink/5"
