@@ -33,7 +33,7 @@ const StarIcon = () => (
     </svg>
 );
 
-export default function WriterBookmarkBooks({ bookmarkBooks: bookmarks }) {
+export default function ReaderBookmarkBooks({ bookmarkBooks: bookmarks }) {
     const handleRemoveBookmark = async (bookId) => {
         const res = await removeBookmark(bookId)
         console.log(res);
