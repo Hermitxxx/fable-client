@@ -125,7 +125,7 @@ export default function ProfilePage() {
             formData.append("image", file);
 
             // Falls back to a local placeholder if NEXT_PUBLIC_IMGBB_API_KEY is undefined
-            const apiKey = process.env.NEXT_PUBLIC_IMGBB_API_KEY || "YOUR_IMGBB_API_KEY";
+            const apiKey = process.env.NEXT_PUBLIC_IMAGE_UPLOAD_API;
 
             if (apiKey === "YOUR_IMGBB_API_KEY") {
                 console.warn("Fable Warning: Please define NEXT_PUBLIC_IMGBB_API_KEY in your environment variables.");

@@ -1,7 +1,7 @@
 import React from 'react';
 import WriterDashboard from './components/WriterDashboard';
-import { getUserSession } from '@/app/lib/core/session';
 import { getWriterStats } from '@/app/lib/api/writers';
+import { getUserSession } from '@/app/lib/core/session';
 
 const WriterPage = async () => {
     const session = await getUserSession();

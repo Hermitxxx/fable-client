@@ -2,7 +2,6 @@
 
 import { bookParchment, deleteBook } from "@/app/lib/actions/books";
 import { showUserDeletedToast } from "@/components/DeleteToast";
-import { toast } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -64,13 +63,14 @@ export default function WriterDashboard({ books }) {
     const [selectedGenreFilter, setSelectedGenreFilter] = useState("all");
 
     const handleToggleStatus = async (bookId, parchment) => {
-        const data = { bookId, parchment };
-        const res = await bookParchment(data);
-        if (res?.success === false) {
-            toast({ title: "Failed to update scroll status", color: "danger" });
-        } else {
-            toast({ title: "Scroll status updated", color: "success" });
+        const data = {
+            bookId,
+            parchment
         }
+
+        console.log(data);
+
+        const res = await bookParchment(data)
     };
 
     const handleDeleteEbook = async (bookId, bookTitle) => {
@@ -267,7 +267,7 @@ export default function WriterDashboard({ books }) {
                                                 ? "bg-prussian/10 text-prussian border-prussian"
                                                 : "bg-ochre/10 text-ochre border-ochre"
                                                 }`}>
-                                                {book.parchment === 'unpublished' ? 'Pending' : book.parchment}
+                                                {book.parchment}
                                             </span>
                                         </td>
 
@@ -276,10 +276,16 @@ export default function WriterDashboard({ books }) {
                                                 <button
                                                     onClick={() => handleToggleStatus(book._id, book.parchment === 'published' ? 'unpublished' : 'published')}
                                                     type="button"
-                                                    className={`px-3 py-1.5 border-2 border-ink rounded-lg font-display text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-ink-sm active:translate-y-px bg-sun text-paper`}
+                                                    className={`px-3 py-1.5 border-2 border-ink rounded-lg font-display text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-ink-sm active:translate-y-px ${book.parchment.toLowerCase() === "published"
+                                                        ? "bg-ochre text-paper"
+                                                        : "bg-sun text-paper"
+                                                        }`}
                                                     title={book.parchment.toLowerCase() === "published" ? "Retract manuscript" : "Expose manuscript"}
                                                 >
-                                                    Edit Scribe
+                                                    <span className="flex items-center gap-1">
+                                                        {book.parchment.toLowerCase() === "published" ? <EyeClosedIcon /> : <EyeOpenIcon />}
+                                                        <span>{book.parchment.toLowerCase() === "published" ? "Unpublish" : "Publish"}</span>
+                                                    </span>
                                                 </button>
 
                                                 <button
@@ -369,10 +375,16 @@ export default function WriterDashboard({ books }) {
                                 <button
                                     onClick={() => handleToggleStatus(book._id, book.parchment === 'published' ? 'unpublished' : 'published')}
                                     type="button"
-                                    className={`px-3 py-1.5 border-2 border-ink rounded-lg font-display text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-ink-sm active:translate-y-px bg-sun text-paper`}
+                                    className={`px-3 py-1.5 border-2 border-ink rounded-lg font-display text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-ink-sm active:translate-y-px ${book.parchment.toLowerCase() === "published"
+                                        ? "bg-ochre text-paper"
+                                        : "bg-sun text-paper"
+                                        }`}
                                     title={book.parchment.toLowerCase() === "published" ? "Retract manuscript" : "Expose manuscript"}
                                 >
-                                    Edit Scribe
+                                    <span className="flex items-center gap-1">
+                                        {book.parchment.toLowerCase() === "published" ? <EyeClosedIcon /> : <EyeOpenIcon />}
+                                        <span>{book.parchment.toLowerCase() === "published" ? "Unpublish" : "Publish"}</span>
+                                    </span>
                                 </button>
 
                                 <button

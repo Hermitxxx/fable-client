@@ -1,5 +1,8 @@
 "use client";
 
+import { deleteBook } from "@/app/lib/actions/books";
+import { EditBookModal } from "@/components/BookEditModal";
+import { showUserDeletedToast } from "@/components/DeleteToast";
 import React, { useState } from "react";
 
 const BrushIcon = () => (
@@ -35,7 +38,7 @@ const UnsealTrashIcon = () => (
 );
 
 const LanternIcon = () => (
-    <svg viewBox="0 0 100 100" className="w-8 h-8 fill-current text-[#E85D35]" aria-hidden="true">
+    <svg viewBox="0 0 100 100" className="w-8 h-8 fill-current text-sun" aria-hidden="true">
         <path d="M35,15 L65,15 L60,30 L40,30 Z" />
         <path d="M25,30 L75,30 L70,80 L30,80 Z" opacity="0.15" />
         <rect x="30" y="30" width="40" height="50" rx="10" fill="none" stroke="currentColor" strokeWidth="3" />
@@ -45,61 +48,28 @@ const LanternIcon = () => (
     </svg>
 );
 
-const WRITER_PERSONAL_CHRONICLES = [
-    {
-        id: "ch-01",
-        title: "The Scribe's Hidden Inkwell",
-        genre: "Scribe Journal",
-        price: 14.50,
-        status: "Published",
-        readers: 189,
-        creationDate: "March 24, 2026",
-        coverImage: "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&q=80&w=200",
-        excerpt: "Courtyard secrets and silent romances of the ancient imperial palaces penned down on delicate silk..."
-    },
-    {
-        id: "ch-02",
-        title: "Bamboo Forest Whispers",
-        genre: "Waka Poetry",
-        price: 8.50,
-        status: "Published",
-        readers: 96,
-        creationDate: "February 10, 2026",
-        coverImage: "https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=200&auto=format&fit=crop",
-        excerpt: "A delicate compilation of quiet forest haikus, brush strokes, and mid-autumn reflections written under bamboo..."
-    },
-    {
-        id: "ch-03",
-        title: "Tales of the Ghostly Lantern",
-        genre: "Folklore",
-        price: 11.00,
-        status: "Published",
-        readers: 142,
-        creationDate: "January 12, 2026",
-        coverImage: "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?q=80&w=200&auto=format&fit=crop",
-        excerpt: "Chilling reports of supernatural phenomena, floating spirits, and haunted paper lanterns in ancient quarters..."
-    },
-    {
-        id: "ch-04",
-        title: "The Autumn Ink-Well Recipe",
-        genre: "Scribe Journal",
-        price: 0.00,
-        status: "Draft",
-        readers: 0,
-        creationDate: "June 20, 2026",
-        coverImage: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&q=80&w=200",
-        excerpt: "The chemistry of midnight grinding, using soot from mountain pine twigs and cold autumn spring waters..."
-    }
-];
-
-export default function WriterEbooks() {
+export default function WriterEbooks({ ebooks }) {
     const [filter, setFilter] = useState("all");
 
-    const filteredChronicles = WRITER_PERSONAL_CHRONICLES.filter(book => {
-        if (filter === "published") return book.status === "Published";
-        if (filter === "draft") return book.status === "Draft";
+    const filteredChronicles = ebooks.filter(book => {
+        if (filter === "published") return book.parchment === "published";
+        if (filter === "draft") return book.parchment === "unpublished";
         return true;
     });
+
+    const formatDate = (dateString) => {
+        return new Date(dateString).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    };
+
+    const handleDeleteEbook = async (bookId, bookTitle) => {
+        const res = await deleteBook(bookId)
+        showUserDeletedToast(bookTitle)
+
+    };
 
     return (
         <div className="min-h-screen bg-paper text-ink p-4 md:p-8 max-w-7xl mx-auto space-y-12 select-none relative">
@@ -109,8 +79,8 @@ export default function WriterEbooks() {
                 <LanternIcon />
             </div>
 
-            { }
-            <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6 border-b-3 border-ink">
+            {/* Header section with traditional framing */}
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 pb-6">
                 <div className="space-y-2">
                     <div className="flex items-center gap-2 text-ochre">
                         <BrushIcon />
@@ -128,8 +98,8 @@ export default function WriterEbooks() {
                 <div className="inline-flex border-2 border-ink rounded-lg overflow-hidden bg-paper shadow-ink-sm shrink-0">
                     {[
                         { key: "all", label: "All Stacks" },
-                        { key: "published", label: "Accessible" },
-                        { key: "draft", label: "Draft Seals" }
+                        { key: "published", label: "Published" },
+                        { key: "draft", label: "Unpublished" }
                     ].map((item) => {
                         const isSelected = filter === item.key;
                         return (
@@ -138,7 +108,7 @@ export default function WriterEbooks() {
                                 type="button"
                                 onClick={() => setFilter(item.key)}
                                 className={`px-3 py-2 text-[10px] font-extrabold uppercase tracking-wider border-r border-ink/20 last:border-0 transition-all cursor-pointer ${isSelected
-                                    ? "bg-sun text-paper font-black"
+                                    ? "bg-[#E85D35] text-paper font-black"
                                     : "bg-transparent text-ink hover:bg-ink/5"
                                     }`}
                             >
@@ -149,7 +119,7 @@ export default function WriterEbooks() {
                 </div>
             </header>
 
-            { }
+            {/* Bookshelf shelving area */}
             <div className="space-y-16">
 
                 {filteredChronicles.length === 0 ? (
@@ -171,11 +141,11 @@ export default function WriterEbooks() {
 
                             return (
                                 <article
-                                    key={book.id}
+                                    key={book._id}
                                     className={`flex flex-col justify-between bg-paper border-3 border-ink rounded-lg shadow-ink-sm h-[400px] relative overflow-hidden transition-all duration-300 ${slantClass} group`}
                                 >
                                     {/* Spine Stitch Bindings (Yotsugi-toji detailing on the left) */}
-                                    <div className="absolute left-0 top-0 bottom-0 w-5 bg-[#2A4056]/15 border-r border-ink/20 flex flex-col justify-between py-6 items-center select-none pointer-events-none z-10">
+                                    <div className="absolute left-0 top-0 bottom-0 w-5 bg-wave/15 border-r border-ink/20 flex flex-col justify-between py-6 items-center select-none pointer-events-none z-10">
                                         <span className="text-[8px] font-bold text-ink/40">✕</span>
                                         <span className="text-[8px] font-bold text-ink/40">✕</span>
                                         <span className="text-[8px] font-bold text-ink/40">✕</span>
@@ -193,21 +163,21 @@ export default function WriterEbooks() {
                                                     alt={book.title}
                                                     className="w-full h-full object-cover"
                                                 />
-                                                {/* Status Stamp Seal */}
-                                                <div className={`absolute inset-0 flex items-center justify-center bg-ink/40 text-paper text-[8px] font-black uppercase tracking-wider transition-opacity ${book.status === "Draft" ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
-                                                    {book.status}
+                                                {/* Status Stamp Seal based on parchment visibility */}
+                                                <div className={`absolute inset-0 flex items-center justify-center bg-ink/60 text-paper text-[8px] font-black uppercase tracking-wider transition-opacity ${book.parchment === "unpublished" ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
+                                                    {book.parchment === "published" ? "Published" : "Draft"}
                                                 </div>
                                             </div>
 
                                             <div className="space-y-1 min-w-0">
-                                                <span className="inline-block text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded border border-ochre/50 bg-ochre/5 text-ochre font-display">
+                                                <span className="inline-block text-[8px] font-extrabold uppercase px-1.5 py-0.5 rounded border border-[#CC7722]/50 bg-[#CC7722]/5 text-ochre font-display">
                                                     {book.genre}
                                                 </span>
                                                 <h3 className="font-display font-black text-sm text-ink leading-tight line-clamp-2 uppercase">
                                                     {book.title}
                                                 </h3>
                                                 <p className="font-mono text-[9px] text-ink/40">
-                                                    Sealed {book.creationDate}
+                                                    Sealed {formatDate(book.createdAt)}
                                                 </p>
                                             </div>
                                         </div>
@@ -217,10 +187,10 @@ export default function WriterEbooks() {
                                         {/* Excerpt Details */}
                                         <div className="space-y-1.5">
                                             <span className="text-[8px] font-bold tracking-widest uppercase text-ink/45 block font-display">
-                                                Excerpt Preview
+                                                Description Preview
                                             </span>
                                             <p className="text-[11px] text-ink/75 italic font-display leading-relaxed line-clamp-3">
-                                                "{book.excerpt}"
+                                                &quot;{book.description}&quot;
                                             </p>
                                         </div>
 
@@ -229,29 +199,24 @@ export default function WriterEbooks() {
                                             <div>
                                                 <span className="text-[8px] font-bold text-ink/40 uppercase block">Treasury Price</span>
                                                 <span className="font-extrabold text-ink font-mono">
-                                                    {book.price === 0 ? "Free Access" : `¥${book.price.toFixed(2)}`}
+                                                    {book.price === 0 ? "Free Access" : `$${book.price.toFixed(2)}`}
                                                 </span>
                                             </div>
                                             <div>
-                                                <span className="text-[8px] font-bold text-ink/40 uppercase block">Active Readers</span>
-                                                <span className="font-bold text-ochre">{book.readers} Collectors</span>
+                                                <span className="text-[8px] font-bold text-ink/40 uppercase block">Acquisitions</span>
+                                                <span className="font-bold text-ochre">{book.purchaseCount} Collectors</span>
                                             </div>
                                         </div>
 
                                     </div>
 
-                                    { }
-                                    <div className="pl-9 pr-5 pb-5 pt-3 bg-[#2A4056]/5 border-t border-ink/10 flex gap-2.5">
-                                        <button
-                                            type="button"
-                                            className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 border-2 border-ink bg-paper hover:bg-sun/15 text-ink rounded shadow-ink-sm text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer active:translate-y-px active:shadow-none"
-                                        >
-                                            <EditSealIcon />
-                                            <span>Edit Scroll</span>
-                                        </button>
+                                    {/* Actions area */}
+                                    <div className="pl-9 pr-5 pb-5 pt-3 bg-wave/5 border-t border-ink/10 flex gap-2.5">
+                                        <EditBookModal book={book}></EditBookModal>
 
                                         <button
                                             type="button"
+                                            onClick={() => { handleDeleteEbook(book._id, book.title) }}
                                             className="px-2.5 py-2 border-2 border-ink bg-transparent hover:bg-red-50 text-red-700 rounded transition-all cursor-pointer active:translate-y-px"
                                             title="Deport scroll from library shelves"
                                         >
@@ -272,20 +237,20 @@ export default function WriterEbooks() {
 
             </div>
 
-            { }
+            {/* Stats and ledger section */}
             <section className="grid grid-cols-1 md:grid-cols-12 gap-8 pt-6">
 
                 {/* Decorative Scribe Bio Panel */}
-                <div className="md:col-span-8 card-ink p-6 bg-[#2A4056]/5 border-2 border-ink rounded-lg flex flex-col sm:flex-row gap-5 items-center">
-                    <div className="w-14 h-14 border-2 border-ink rounded-full bg-sun flex items-center justify-center text-paper font-display font-black text-xl shadow-ink-sm shrink-0">
-                        B
+                <div className="md:col-span-8 card-ink p-6 bg-wave/5 border-2 border-ink rounded-lg flex flex-col sm:flex-row gap-5 items-center">
+                    <div className="w-14 h-14 border-2 border-ink rounded-full bg-[#E85D35] flex items-center justify-center text-paper font-display font-black text-xl shadow-ink-sm shrink-0">
+                        C
                     </div>
                     <div className="space-y-1.5 text-center sm:text-left">
                         <h4 className="font-display font-extrabold text-sm uppercase tracking-wider">
                             High-Sealed Scribe Identity
                         </h4>
                         <p className="text-xs text-ink/80 leading-relaxed max-w-[60ch]">
-                            You are currently authenticated as <span className="font-bold text-ochre">Master Basho</span>. Every booklet on these shelves has been verified with your traditional signature stamp registry. Payout rates on collected stamps are settled on standard Edo quarters.
+                            You are currently authenticated as <span className="font-bold text-ochre">Charlie Green</span>. Every booklet on these shelves has been verified with your traditional signature stamp registry. Payout rates on collected stamps are settled on standard Edo quarters.
                         </p>
                     </div>
                 </div>
@@ -298,11 +263,11 @@ export default function WriterEbooks() {
                         </span>
                         <div className="flex justify-between items-center text-xs">
                             <span className="font-display font-semibold">Mounted Booklets:</span>
-                            <span className="font-mono font-bold">{WRITER_PERSONAL_CHRONICLES.length} Scrolls</span>
+                            <span className="font-mono font-bold">{ebooks.length} Scrolls</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
                             <span className="font-display font-semibold">Total Public Reader Base:</span>
-                            <span className="font-bold text-[#E85D35]">{WRITER_PERSONAL_CHRONICLES.reduce((acc, curr) => acc + curr.readers, 0)} Collectors</span>
+                            <span className="font-bold text-sun">{ebooks.reduce((acc, curr) => acc + curr.purchaseCount, 0)} Collectors</span>
                         </div>
                     </div>
 

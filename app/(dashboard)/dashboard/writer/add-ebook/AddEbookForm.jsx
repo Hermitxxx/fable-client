@@ -128,7 +128,7 @@ export default function AddEbookForm() {
             price: parseFloat(price) || 0,
             coverImage,
             status: 'Available',
-            parchment: 'pending',
+            parchment: 'published',
             description,
             writerName: user?.name,
             writerId: user?.id,
