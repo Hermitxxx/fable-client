@@ -76,10 +76,8 @@ const TagIcon = () => (
 
 export default function BookDetails({ book }) {
     // Mock session states (feel free to connect these to your global auth/state providers)
-    const [userRole, setUserRole] = useState("GUEST"); // Options: "GUEST", "BUYER", "OWNER", "BUYER_PURCHASED"
     const [pageState, setPageState] = useState("LOADED"); // Options: "LOADED", "LOADING", "NOT_FOUND"
     const [isBookmarked, setIsBookmarked] = useState(false);
-    const [isPurchased, setIsPurchased] = useState(false);
 
     const {
         data: session,
@@ -101,14 +99,22 @@ export default function BookDetails({ book }) {
         console.log(data);
     }
 
-    // Sync simulated purchased state with role changes for better UX flow
-    useEffect(() => {
-        if (userRole === "BUYER_PURCHASED") {
-            setIsPurchased(true);
-        } else {
-            setIsPurchased(false);
-        }
-    }, [userRole, book.writerId]);
+    // purchase handling function
+    const handlePurchase = async (bookId) => {
+        const response = await fetch('/api/checkout_sessions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bookId),
+        });
+
+        const { url } = await response.json();
+
+        console.log(url);
+
+        window.location.href = url;
+    };
 
 
     // Format the raw timestamp to a beautiful classic layout
@@ -174,8 +180,8 @@ export default function BookDetails({ book }) {
     }
 
     // Evaluate dynamic conditions based on active roles
-    const isScribeOwner = userRole === "OWNER";
-    const isGuest = userRole === "GUEST";
+    // const isScribeOwner = userRole === "OWNER";
+    // const isGuest = userRole === "GUEST";
 
     return (
         <main className="min-h-dvh bg-paper text-ink py-8 mt-8 mb-10 px-4 md:px-8 max-w-[1280px] mx-auto relative">
@@ -298,7 +304,7 @@ export default function BookDetails({ book }) {
                             </p>
                         </div>
 
-                        <Button className={`btn-primary text-sm py-2 px-4 text-center justify-center`}>Purchase</Button>
+                        <Button onClick={() => handlePurchase(book._id)} className={`btn-primary text-sm py-2 px-4 text-center justify-center`}>Purchase</Button>
                     </div>
 
                 </div>

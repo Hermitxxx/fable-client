@@ -10,13 +10,15 @@ import {
     LogOut, Menu, Building, Users, ArrowLeft,
     LayoutGrid,
     User2Icon,
-    BookmarkIcon
+    BookmarkIcon,
+    HistoryIcon
 } from 'lucide-react';
 import { Button, Drawer, Avatar } from "@heroui/react";
 import Link from "next/link";
 import toast from 'react-hot-toast';
 import { PiBooks } from "react-icons/pi";
 import { MdPublish } from "react-icons/md";
+import { authClient } from "@/app/lib/auth-client";
 
 const CustomLogOutIcon = () => (
     <svg
@@ -48,6 +50,7 @@ const WaveCrestLogo = () => (
 const readerNavLinks = [
     { icon: House, href: "/dashboard/reader", label: "Dashboard" },
     { icon: BookmarkIcon, href: "/dashboard/reader/bookmarks", label: "Bookmarks" },
+    { icon: HistoryIcon, href: "/dashboard/reader/purchase-history", label: "Purchased Scribes" },
 ];
 
 const writerNavlinks = [
@@ -83,9 +86,13 @@ export default function Sidebar() {
     const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);
 
-    // const { data: session } = authClient.useSession();
-    // const user = session?.user || propUser;
-    const role = 'reader';
+    const {
+        data: session,
+        isPending, //loading state
+        error, //error object
+        refetch //refetch the session
+    } = authClient.useSession()
+    const role = session?.user?.role;
     const navItems = navLinksMap[role] || readerNavLinks;
 
     const isActive = (href) => {

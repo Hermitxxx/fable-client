@@ -1,27 +1,211 @@
+import { getAllTrans } from '@/app/lib/api/transactions';
+import { getAllUsers } from '@/app/lib/api/users';
+import { getAllWriters } from '@/app/lib/api/writers';
 import React from 'react';
 
-const users = [
-    { id: "u1", name: "Albert Dera", email: "albert.dera@fable.com", role: "writer" },
-    { id: "u2", name: "Master Basho", email: "basho@fable-revival.jp", role: "writer" },
-    { id: "u3", name: "Murasaki Shikibu", email: "shikibu@fable-revival.jp", role: "writer" },
-    { id: "u4", name: "Genji Tanaka", email: "genji.tanaka@tokyo.com", role: "user" },
-    { id: "u5", name: "Hokusai Katsushika", email: "hokusai@fable-revival.jp", role: "admin" },
-    { id: "u6", name: "Tomo Kurosawa", email: "tomo.k@gmail.com", role: "user" },
-];
+// ─── helpers ────────────────────────────────────────────────────────────────
 
-const transactions = [
-    { id: "TX-9081", type: "publishing fee", email: "albert.dera@fable.com", amount: 1000.00, date: "2026-06-02" },
-    { id: "TX-9082", type: "purchase", email: "genji.tanaka@tokyo.com", amount: 14.99, date: "2026-06-10" },
-    { id: "TX-9083", type: "publishing fee", email: "basho@fable-revival.jp", amount: 1000.00, date: "2026-06-12" },
-    { id: "TX-9084", type: "purchase", email: "tomo.k@gmail.com", amount: 8.50, date: "2026-06-15" },
-    { id: "TX-9085", type: "publishing fee", email: "shikibu@fable-revival.jp", amount: 1000.00, date: "2026-06-18" },
-    { id: "TX-9086", type: "purchase", email: "genji.tanaka@tokyo.com", amount: 14.50, date: "2026-06-20" },
-];
-const AdminPage = () => {
+const MONTH_ABBR = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+// Bar chart palette — cycles through design-system colours
+const BAR_COLORS = ['#2A4056', '#003153', '#CC7722', '#E85D35', '#2A4056', '#003153', '#CC7722', '#E85D35', '#2A4056', '#003153', '#CC7722', '#E85D35'];
+
+// Donut colours for genres
+const GENRE_COLORS = ['#E85D35', '#2A4056', '#CC7722', '#003153', '#E85D35', '#2A4056'];
+
+// ─── data helpers ────────────────────────────────────────────────────────────
+
+function buildMonthlyRevenue(transactions) {
+    // date format: "DD/MM/YYYY"
+    const map = {}; // key: "YYYY-MM" → { label: 'JAN', total: 0 }
+
+    transactions.forEach(t => {
+        const parts = t.date?.split('/');
+        if (!parts || parts.length < 3) return;
+        const [, month, year] = parts; // DD / MM / YYYY
+        const key = `${year}-${month}`;
+        if (!map[key]) {
+            map[key] = { label: MONTH_ABBR[parseInt(month, 10) - 1], total: 0, sortKey: `${year}${month}` };
+        }
+        map[key].total += parseFloat(t.price) || 0;
+    });
+
+    // Sort chronologically, take last 6 months max
+    return Object.values(map)
+        .sort((a, b) => a.sortKey.localeCompare(b.sortKey))
+        .slice(-6);
+}
+
+function buildGenreCounts(transactions) {
+    const map = {};
+    transactions.forEach(t => {
+        const genre = t.genre || 'Other';
+        map[genre] = (map[genre] || 0) + 1;
+    });
+    const total = transactions.length || 1;
+    return Object.entries(map)
+        .sort((a, b) => b[1] - a[1])
+        .map(([genre, count]) => ({
+            genre,
+            count,
+            pct: Math.round((count / total) * 100),
+        }));
+}
+
+// ─── SVG bar chart ───────────────────────────────────────────────────────────
+
+function BarChart({ months }) {
+    if (!months.length) {
+        return (
+            <div className="flex items-center justify-center h-[220px] text-[#0D0D15]/40 font-display text-xs uppercase tracking-wider">
+                No transaction data yet
+            </div>
+        );
+    }
+
+    const CHART_W = 500;
+    const CHART_H = 250;
+    const PAD_LEFT = 50;
+    const PAD_RIGHT = 20;
+    const PAD_TOP = 50;
+    const BASELINE = 200;
+    const MAX_BAR_H = BASELINE - PAD_TOP; // 150px
+
+    const maxVal = Math.max(...months.map(m => m.total));
+    const barAreaW = CHART_W - PAD_LEFT - PAD_RIGHT;
+    const barW = Math.min(45, (barAreaW / months.length) * 0.55);
+    const gap = barAreaW / months.length;
+
+    return (
+        <svg viewBox={`0 0 ${CHART_W} ${CHART_H}`} className="w-full h-full" preserveAspectRatio="none">
+            {/* Gridlines */}
+            {[0.25, 0.5, 0.75, 1].map((frac, i) => {
+                const y = BASELINE - frac * MAX_BAR_H;
+                return (
+                    <line key={i} x1={PAD_LEFT} y1={y} x2={CHART_W - PAD_RIGHT} y2={y}
+                        stroke="#0d0d15" strokeWidth="1" strokeDasharray="3 3" opacity="0.15" />
+                );
+            })}
+
+            {/* Baseline */}
+            <line x1={PAD_LEFT - 10} y1={BASELINE} x2={CHART_W - PAD_RIGHT} y2={BASELINE}
+                stroke="#0D0D15" strokeWidth="3" />
+
+            {/* Bars */}
+            {months.map((m, i) => {
+                const barH = maxVal > 0 ? (m.total / maxVal) * MAX_BAR_H : 0;
+                const cx = PAD_LEFT + gap * i + gap / 2;
+                const x = cx - barW / 2;
+                const y = BASELINE - barH;
+                const fill = BAR_COLORS[i % BAR_COLORS.length];
+                const hoverFill = BAR_COLORS[(i + 2) % BAR_COLORS.length];
+                const label = m.total >= 1000
+                    ? `$${(m.total / 1000).toFixed(1)}k`
+                    : `$${m.total.toFixed(0)}`;
+
+                return (
+                    <g key={m.sortKey} className="chart-bar-group">
+                        <style>{`
+                            .chart-bar-${i}:hover { fill: ${hoverFill}; }
+                        `}</style>
+                        <rect
+                            x={x} y={y} width={barW} height={barH}
+                            fill={fill} stroke="#0D0D15" strokeWidth="2"
+                            className={`chart-bar-${i}`}
+                            style={{ transition: 'fill 200ms ease-out', cursor: 'pointer' }}
+                        />
+                        <text x={cx} y={y - 8} textAnchor="middle" fill="#0D0D15"
+                            style={{ fontFamily: 'Cinzel, serif', fontSize: '9px', fontWeight: 700 }}>
+                            {label}
+                        </text>
+                        <text x={cx} y={BASELINE + 15} textAnchor="middle" fill="#0D0D15"
+                            style={{ fontFamily: 'Cinzel, serif', fontSize: '10px', fontWeight: 700 }}>
+                            {m.label}
+                        </text>
+                    </g>
+                );
+            })}
+        </svg>
+    );
+}
+
+// ─── SVG donut chart ─────────────────────────────────────────────────────────
+
+function DonutChart({ genres }) {
+    if (!genres.length) {
+        return (
+            <div className="flex items-center justify-center py-4 text-[#0D0D15]/40 font-display text-xs uppercase tracking-wider">
+                No genre data yet
+            </div>
+        );
+    }
+
+    const R = 30;         // ring radius
+    const STROKE = 16;    // ring thickness
+    const CIRCUMFERENCE = 2 * Math.PI * R; // ≈ 188.5
+
+    let offset = 0;
+    const segments = genres.map((g, i) => {
+        const dash = (g.pct / 100) * CIRCUMFERENCE;
+        const seg = { ...g, dash, offset, color: GENRE_COLORS[i % GENRE_COLORS.length] };
+        offset += dash;
+        return seg;
+    });
+
+    return (
+        <>
+            <div className="flex justify-center items-center py-2">
+                <svg width="150" height="150" viewBox="0 0 100 100" className="w-36 h-36">
+                    {/* Outer ring border */}
+                    <circle cx="50" cy="50" r={R} fill="transparent" stroke="#0D0D15" strokeWidth="1" />
+
+                    {segments.map((seg, i) => (
+                        <circle
+                            key={i}
+                            cx="50" cy="50" r={R}
+                            fill="transparent"
+                            stroke={seg.color}
+                            strokeWidth={STROKE}
+                            strokeDasharray={`${seg.dash} ${CIRCUMFERENCE}`}
+                            strokeDashoffset={-seg.offset}
+                        />
+                    ))}
+
+                    {/* Inner washi core */}
+                    <circle cx="50" cy="50" r="22" fill="#F0E3CE" stroke="#0D0D15" strokeWidth="2" />
+                </svg>
+            </div>
+
+            {/* Legend */}
+            <div className="grid grid-cols-2 gap-2 text-[10px] font-bold uppercase tracking-wider font-display">
+                {segments.map((seg, i) => (
+                    <div key={i} className="flex items-center gap-1.5">
+                        <span className="w-2.5 h-2.5 border border-[#0D0D15] rounded-sm flex-shrink-0"
+                            style={{ backgroundColor: seg.color }} />
+                        <span>{seg.genre} ({seg.pct}%)</span>
+                    </div>
+                ))}
+            </div>
+        </>
+    );
+}
+
+// ─── page ────────────────────────────────────────────────────────────────────
+
+const AdminPage = async () => {
+    const users = await getAllUsers();
     const totalUsers = users.length;
-    const totalWriters = users.filter(u => u.role === "writer").length;
-    const totalEbooksSold = transactions.filter(t => t.type === "purchase").length;
-    const totalRevenue = transactions.reduce((acc, curr) => acc + curr.amount, 0);
+    const writers = await getAllWriters();
+    const totalWriters = writers.length;
+
+    const transactions = await getAllTrans();
+
+    const totalRevenue = transactions.reduce((acc, curr) => acc + (parseFloat(curr.price) || 0), 0);
+    const totalEbooksSold = transactions.length;
+
+    const monthlyData = buildMonthlyRevenue(transactions);
+    const genreData = buildGenreCounts(transactions);
+
     return (
         <section className='p-8'>
             <div className="space-y-10">
@@ -30,7 +214,7 @@ const AdminPage = () => {
                         Imperial Ledger Overview
                     </h2>
                     <p className="font-display text-xs text-[#0D0D15]/60 mt-3 max-w-[65ch]">
-                        Visual records of the Scribe Covenant’s earnings, catalog expansions, and active platform participants.
+                        Visual records of the Scribe Covenant&apos;s earnings, catalog expansions, and active platform participants.
                     </p>
                 </div>
 
@@ -78,7 +262,7 @@ const AdminPage = () => {
                             Treasury Balance
                         </p>
                         <div className="flex justify-between items-baseline mt-3">
-                            <h3 className="text-2xl font-extrabold font-display">¥{totalRevenue.toFixed(2)}</h3>
+                            <h3 className="text-2xl font-extrabold font-display">${totalRevenue.toFixed(2)}</h3>
                             <span className="text-xs font-semibold text-[#2A4056] bg-[#2A4056]/10 px-2 py-0.5 rounded border border-[#2A4056]">
                                 REVENUE
                             </span>
@@ -87,106 +271,25 @@ const AdminPage = () => {
 
                 </div>
 
-                { }
+                {/* Charts */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-4">
 
-                    {/* Left Chart Panel (8/12 wide): Monthly Sales bar visualization */}
+                    {/* Bar Chart — Monthly Revenue */}
                     <div className="lg:col-span-8 card-ink p-6 bg-[#F0E3CE] space-y-4">
                         <h4 className="font-display font-bold text-xs uppercase tracking-wider text-[#0D0D15]/70 border-b border-[#0D0D15]/10 pb-2">
                             Monthly Treasures (Sumi Bar Ledger)
                         </h4>
-
-                        {/* Responsive SVG Bar Graph */}
                         <div className="w-full aspect-[16/9] min-h-[220px] max-h-[300px] relative">
-                            <svg viewBox="0 0 500 250" className="w-full h-full" preserveAspectRatio="none">
-                                {/* Gridlines */}
-                                <line x1="50" y1="50" x2="480" y2="50" stroke="#0d0d15" strokeWidth="1" strokeDasharray="3 3" opacity="0.15" />
-                                <line x1="50" y1="125" x2="480" y2="125" stroke="#0d0d15" strokeWidth="1" strokeDasharray="3 3" opacity="0.15" />
-                                <line x1="50" y1="200" x2="480" y2="200" stroke="#0d0d15" strokeWidth="1" strokeDasharray="3 3" opacity="0.15" />
-
-                                {/* Solid Base Baseline */}
-                                <line x1="40" y1="200" x2="480" y2="200" stroke="#0D0D15" strokeWidth="3" />
-
-                                {/* Bars - representing wood pillars decorated with colors */}
-                                {/* January bar */}
-                                <g className="group cursor-pointer">
-                                    <rect x="80" y="140" width="45" height="60" fill="#2A4056" stroke="#0D0D15" strokeWidth="2" className="transition-all hover:fill-[#CC7722]" />
-                                    <text x="102" y="130" textAnchor="middle" fill="#0D0D15" className="font-display text-[9px] font-bold">¥600</text>
-                                    <text x="102" y="215" textAnchor="middle" fill="#0D0D15" className="font-display text-[10px] font-bold">JAN</text>
-                                </g>
-                                {/* February bar */}
-                                <g className="group cursor-pointer">
-                                    <rect x="160" y="110" width="45" height="90" fill="#003153" stroke="#0D0D15" strokeWidth="2" className="transition-all hover:fill-[#CC7722]" />
-                                    <text x="182" y="100" textAnchor="middle" fill="#0D0D15" className="font-display text-[9px] font-bold">¥1,200</text>
-                                    <text x="182" y="215" textAnchor="middle" fill="#0D0D15" className="font-display text-[10px] font-bold">FEB</text>
-                                </g>
-                                {/* March bar */}
-                                <g className="group cursor-pointer">
-                                    <rect x="240" y="90" width="45" height="110" fill="#CC7722" stroke="#0D0D15" strokeWidth="2" className="transition-all hover:fill-[#E85D35]" />
-                                    <text x="262" y="80" textAnchor="middle" fill="#0D0D15" className="font-display text-[9px] font-bold">¥1,800</text>
-                                    <text x="262" y="215" textAnchor="middle" fill="#0D0D15" className="font-display text-[10px] font-bold">MAR</text>
-                                </g>
-                                {/* April bar */}
-                                <g className="group cursor-pointer">
-                                    <rect x="320" y="60" width="45" height="140" fill="#E85D35" stroke="#0D0D15" strokeWidth="2" className="transition-all hover:fill-[#003153]" />
-                                    <text x="342" y="50" textAnchor="middle" fill="#0D0D15" className="font-display text-[9px] font-bold">¥2,400</text>
-                                    <text x="342" y="215" textAnchor="middle" fill="#0D0D15" className="font-display text-[10px] font-bold">APR</text>
-                                </g>
-                                {/* May/Current bar */}
-                                <g className="group cursor-pointer">
-                                    <rect x="400" y="75" width="45" height="125" fill="#2A4056" stroke="#0D0D15" strokeWidth="2" className="transition-all hover:fill-[#CC7722]" />
-                                    <text x="422" y="65" textAnchor="middle" fill="#0D0D15" className="font-display text-[9px] font-bold">¥2,024</text>
-                                    <text x="422" y="215" textAnchor="middle" fill="#0D0D15" className="font-display text-[10px] font-bold">MAY</text>
-                                </g>
-                            </svg>
+                            <BarChart months={monthlyData} />
                         </div>
                     </div>
 
-                    {/* Right Chart Panel (4/12 wide): Genre pie/donut segment */}
+                    {/* Donut Chart — Genre Breakdown */}
                     <div className="lg:col-span-4 card-ink p-6 bg-[#F0E3CE] flex flex-col justify-between space-y-4">
                         <h4 className="font-display font-bold text-xs uppercase tracking-wider text-[#0D0D15]/70 border-b border-[#0D0D15]/10 pb-2">
                             Scrolls by Genre (Hollow Fan)
                         </h4>
-
-                        {/* Donut Chart representation built directly in SVG */}
-                        <div className="flex justify-center items-center py-2">
-                            <svg width="150" height="150" viewBox="0 0 100 100" className="w-36 h-36">
-                                {/* Background Circle */}
-                                <circle cx="50" cy="50" r="40" fill="transparent" stroke="#0D0D15" strokeWidth="1" />
-
-                                {/* Fiction segment (40%) */}
-                                <circle cx="50" cy="50" r="30" fill="transparent" stroke="#E85D35" strokeWidth="16" strokeDasharray="75.4 188.5" strokeDashoffset="0" />
-                                {/* Poetry segment (30%) */}
-                                <circle cx="50" cy="50" r="30" fill="transparent" stroke="#2A4056" strokeWidth="16" strokeDasharray="56.5 188.5" strokeDashoffset="-75.4" />
-                                {/* Historical (20%) */}
-                                <circle cx="50" cy="50" r="30" fill="transparent" stroke="#CC7722" strokeWidth="16" strokeDasharray="37.7 188.5" strokeDashoffset="-131.9" />
-                                {/* Scribe Diaries (10%) */}
-                                <circle cx="50" cy="50" r="30" fill="transparent" stroke="#003153" strokeWidth="16" strokeDasharray="18.9 188.5" strokeDashoffset="-169.6" />
-
-                                {/* Inner Washi Core masking hole */}
-                                <circle cx="50" cy="50" r="22" fill="#F0E3CE" stroke="#0D0D15" strokeWidth="2" />
-                            </svg>
-                        </div>
-
-                        {/* Donut Legend Indicators */}
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-bold uppercase tracking-wider font-display">
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 bg-[#E85D35] border border-[#0D0D15] rounded-sm" />
-                                <span>Fiction (40%)</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 bg-[#2A4056] border border-[#0D0D15] rounded-sm" />
-                                <span>Poetry (30%)</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 bg-[#CC7722] border border-[#0D0D15] rounded-sm" />
-                                <span>History (20%)</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-2.5 h-2.5 bg-[#003153] border border-[#0D0D15] rounded-sm" />
-                                <span>Diary (10%)</span>
-                            </div>
-                        </div>
+                        <DonutChart genres={genreData} />
                     </div>
 
                 </div>
