@@ -1,6 +1,54 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Playfair+Display&size=48&duration=3000&pause=1000&color=C084FC&center=true&vCenter=true&width=600&lines=📚+Fable;Discover+%26+Read+Original+Ebooks;Where+Stories+Come+Alive" alt="Fable Typing SVG" />
+<svg viewBox="0 0 700 120" xmlns="http://www.w3.org/2000/svg" width="700" height="120">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&amp;display=swap');
+      .title { font-family: 'Playfair Display', Georgia, serif; font-size: 56px; font-weight: 700; fill: #C084FC; }
+      .sub   { font-family: 'Courier New', monospace; font-size: 15px; fill: #A78BFA; letter-spacing: 3px; }
+      .cursor { fill: #C084FC; }
+
+      /* Draw animation for each letter of FABLE */
+      @keyframes fadeUp {
+        0%   { opacity: 0; transform: translateY(18px); }
+        100% { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes blink {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0; }
+      }
+      @keyframes slideIn {
+        0%   { opacity: 0; letter-spacing: 12px; }
+        100% { opacity: 1; letter-spacing: 3px; }
+      }
+
+      #f { animation: fadeUp 0.4s ease 0.1s both; }
+      #a { animation: fadeUp 0.4s ease 0.3s both; }
+      #b { animation: fadeUp 0.4s ease 0.5s both; }
+      #l { animation: fadeUp 0.4s ease 0.7s both; }
+      #e { animation: fadeUp 0.4s ease 0.9s both; }
+      #cursor { animation: blink 1s step-start 1.2s infinite; }
+      #sub    { animation: slideIn 0.8s ease 1.3s both; }
+    </style>
+  </defs>
+
+  <!-- Background pill -->
+  <rect x="0" y="0" width="700" height="120" rx="14" fill="#0d1117"/>
+
+  <!-- Book emoji -->
+  <text x="48" y="76" font-size="44" text-anchor="middle">📚</text>
+
+  <!-- Animated letters -->
+  <text y="78" text-anchor="start">
+    <tspan id="f" class="title" x="95">F</tspan><tspan id="a" class="title">a</tspan><tspan id="b" class="title">b</tspan><tspan id="l" class="title">l</tspan><tspan id="e" class="title">e</tspan>
+  </text>
+
+  <!-- Blinking cursor -->
+  <text id="cursor" class="title cursor" x="258" y="78">|</text>
+
+  <!-- Subtitle -->
+  <text id="sub" class="sub" x="350" y="105" text-anchor="middle">DISCOVER · READ · SHARE ORIGINAL EBOOKS</text>
+</svg>
 
 <br/>
 
@@ -212,7 +260,7 @@ NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_api_key
 | Page | Access |
 |---|---|
 | `/` | Public — Hero, Featured Ebooks, Top Writers, Genres |
-| `/books` | Public — Search, filter, paginate all ebooks |
+| `/browse` | Public — Search, filter, paginate all ebooks |
 | `/ebook/[id]` | Public (purchase requires login) |
 | `/dashboard/user` | Authenticated Readers |
 | `/dashboard/writer` | Authenticated Writers |
@@ -235,6 +283,15 @@ The client is deployed on **Vercel**. The server runs on a separate Express.js b
 
 **Made with 📖 and lots of ☕ by [Hermitxxx](https://github.com/Hermitxxx)**
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=14&pause=1000&color=C084FC&center=true&vCenter=true&width=500&lines=Thanks+for+visiting+Fable+✨;Happy+Reading+📚" />
+<svg viewBox="0 0 500 44" xmlns="http://www.w3.org/2000/svg" width="500" height="44">
+  <defs>
+    <style>
+      @keyframes pulse { 0%,100%{opacity:.7} 50%{opacity:1} }
+      .ft { font-family:'Courier New',monospace; font-size:13px; fill:#A78BFA; letter-spacing:1.5px; animation: pulse 2.5s ease-in-out infinite; }
+    </style>
+  </defs>
+  <rect width="500" height="44" rx="8" fill="#0d1117"/>
+  <text class="ft" x="250" y="27" text-anchor="middle">✨ Thanks for visiting Fable · Happy Reading 📚 ✨</text>
+</svg>
 
 </div>
