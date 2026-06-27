@@ -1,18 +1,11 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useTransition, useCallback } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import { Pagination } from "@heroui/react";
 import BookCard from "./components/BookCard";
 
-// Inline Custom SVGs to replace external icons and prevent external asset latency
-const WaveCrestIcon = () => (
-  <svg viewBox="0 0 100 100" className="w-8 h-8 fill-current" aria-hidden="true">
-    <path d="M10,80 C30,80 35,50 50,50 C65,50 70,75 90,75 C95,75 98,70 100,65 L100,90 L0,90 L0,70 C3,75 6,80 10,80 Z" />
-    <path d="M5,60 C25,60 30,30 50,30 C70,30 75,65 95,65 C97,65 99,62 100,58 L100,75 C98,78 95,80 90,80 C70,80 65,55 50,55 C35,55 30,85 10,85 C6,85 3,82 0,78 L0,55 C2,58 4,60 5,60 Z" />
-    <circle cx="28" cy="35" r="3" />
-    <circle cx="48" cy="20" r="2.5" />
-    <circle cx="72" cy="40" r="3.5" />
-  </svg>
-);
+// ─── icons ───────────────────────────────────────────────────────────────────
 
 const SearchIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5">
@@ -28,103 +21,217 @@ const FilterIcon = () => (
 );
 
 const BookOpenIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-8 h-8">
     <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
     <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
   </svg>
 );
 
-const BrushIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5">
-    <path d="M18 11l-6-6-8 8V21h8l6-6z" />
-    <path d="M11 6l4 4" />
-    <path d="M14 15l4 4" />
-  </svg>
-);
-
-const StarIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" className="w-4 h-4 text-sun">
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-  </svg>
-);
-
-const GoldInkBoltIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4 text-ochre">
-    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-  </svg>
-);
-
 const CrossIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4">
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
-const ALL_GENRES = ["All Genres", "Fiction", "Waka Poetry", "Folklore", "Historical Scroll", "Scribe Journal"];
-const ALL_WRITERS = ["All Scribes", "Albert Dera", "Master Basho", "Murasaki Shikibu", "Chiyo-ni", "Hokusai"];
+const ChevronLeftIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4">
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
 
-export default function BrowseBooksPage({ books }) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedGenre, setSelectedGenre] = useState("All Genres");
-  const [selectedWriter, setSelectedWriter] = useState("All Scribes");
-  const [activeBookPreview, setActiveBookPreview] = useState(null);
+const ChevronRightIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4">
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+);
 
-  const featuredBook = books.find((b) => b.rating > 4.8);
+// ─── constants ────────────────────────────────────────────────────────────────
 
+const ALL_GENRES = [
+  "All Genres", "Fiction", "Waka Poetry", "Folklore",
+  "Historical Scroll", "Scribe Journal", "Horror",
+  "Fantasy", "Romance", "Mystery",
+];
+
+const ALL_WRITERS = [
+  "All Scribes", "Albert Dera", "Master Basho",
+  "Murasaki Shikibu", "Chiyo-ni", "Hokusai",
+];
+
+// How many page buttons to show around the current page
+const SIBLING_COUNT = 1;
+
+// ─── pagination range helper ──────────────────────────────────────────────────
+
+function getPaginationRange(current, total) {
+  // Always show: first, last, current ± SIBLING_COUNT, with "…" gaps
+  const range = new Set([1, total]);
+  for (let i = Math.max(2, current - SIBLING_COUNT); i <= Math.min(total - 1, current + SIBLING_COUNT); i++) {
+    range.add(i);
+  }
+  const sorted = [...range].sort((a, b) => a - b);
+  // Insert ellipsis markers
+  const result = [];
+  for (let i = 0; i < sorted.length; i++) {
+    if (i > 0 && sorted[i] - sorted[i - 1] > 1) result.push("...");
+    result.push(sorted[i]);
+  }
+  return result;
+}
+
+// ─── component ────────────────────────────────────────────────────────────────
+
+export default function BrowseBooksPage({
+  books = [],
+  total = 0,
+  totalPages = 1,
+  currentPage = 1,
+  currentSearch = "",
+  currentGenre = "",
+  currentWriter = "",
+}) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
+
+  // Local controlled state for inputs — only pushed to URL on submit/select
+  const [searchInput, setSearchInput] = useState(currentSearch);
+  const [selectedGenre, setSelectedGenre] = useState(currentGenre || "All Genres");
+  const [selectedWriter, setSelectedWriter] = useState(currentWriter || "All Scribes");
+
+  // ── URL push helper ──────────────────────────────────────────────────────
+  const pushParams = useCallback((overrides = {}) => {
+    const next = {
+      search: searchInput,
+      genre: selectedGenre === "All Genres" ? "" : selectedGenre,
+      writer: selectedWriter === "All Scribes" ? "" : selectedWriter,
+      page: "1",           // reset to page 1 whenever filters change
+      ...overrides,
+    };
+    const qs = new URLSearchParams();
+    if (next.search) qs.set("search", next.search);
+    if (next.genre) qs.set("genre", next.genre);
+    if (next.writer) qs.set("writer", next.writer);
+    if (next.page && next.page !== "1") qs.set("page", next.page);
+    const url = qs.toString() ? `${pathname}?${qs}` : pathname;
+    startTransition(() => router.push(url));
+  }, [searchInput, selectedGenre, selectedWriter, pathname, router]);
+
+  // ── handlers ─────────────────────────────────────────────────────────────
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    pushParams({ search: searchInput, page: "1" });
+  };
+
+  const handleGenreSelect = (genre) => {
+    setSelectedGenre(genre);
+    pushParams({
+      genre: genre === "All Genres" ? "" : genre,
+      page: "1",
+    });
+  };
+
+  const handleWriterSelect = (writer) => {
+    setSelectedWriter(writer);
+    pushParams({
+      writer: writer === "All Scribes" ? "" : writer,
+      page: "1",
+    });
+  };
+
+  const handleClearAll = () => {
+    setSearchInput("");
+    setSelectedGenre("All Genres");
+    setSelectedWriter("All Scribes");
+    startTransition(() => router.push(pathname));
+  };
+
+  const handlePageChange = (page) => {
+    pushParams({ page: String(page) });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const hasActiveFilters =
+    currentSearch || (currentGenre && currentGenre !== "All Genres") || (currentWriter && currentWriter !== "All Scribes");
+
+  const paginationRange = getPaginationRange(currentPage, totalPages);
+
+  // ── render ────────────────────────────────────────────────────────────────
 
   return (
-    <main className="min-h-[100dvh] mt-16 bg-paper text-ink font-display py-8 px-4 md:px-8 max-w-[1280px] mx-auto relative">
+    <main className="min-h-[100dvh] my-16 bg-paper text-ink font-display py-8 px-4 md:px-8 max-w-[1280px] mx-auto relative">
 
-      { }
-      <section className="grid grid-cols-1 gap-8 items-center">
+      {/* Pending overlay — subtle opacity shift while navigating */}
+      {isPending && (
+        <div className="fixed inset-0 z-[200] pointer-events-none bg-paper/30 transition-opacity" />
+      )}
 
-        {/* Left Side: Filter Control Board */}
-        <aside className="lg:col-span-4 bg-paper border-ink p-6 rounded-lg shadow-ink relative">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+        {/* ── Left: Filter Panel ── */}
+        <aside className="lg:col-span-4 card-ink p-6 bg-paper lg:sticky lg:top-24">
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
+
+            <div className="flex items-center gap-2 border-b-2 border-ink/10 pb-4">
               <FilterIcon />
-              <h3 className="font-bold text-lg tracking-wider uppercase">SCRIBE CONTROL PANEL</h3>
+              <h3 className="font-bold text-sm tracking-widest uppercase">Scribe Control Panel</h3>
             </div>
 
-            {/* Search Input */}
+            {/* Search */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider block">Search Chronicles</label>
-              <div className="relative flex items-center">
-                <span className="absolute left-3 text-ink/60 z-10">
-                  <SearchIcon />
-                </span>
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Query title, scribe..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-paper text-sm border-2 border-ink rounded-md focus:outline-none focus:border-sun transition-all"
-                />
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm("")}
-                    className="absolute right-3 text-ink/60 hover:text-ink cursor-pointer"
-                  >
-                    <CrossIcon />
-                  </button>
-                )}
-              </div>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-ink/60 block">
+                Search Chronicles
+              </label>
+              <form onSubmit={handleSearchSubmit} className="relative flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-ink/40 pointer-events-none">
+                    <SearchIcon />
+                  </span>
+                  <input
+                    type="text"
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    placeholder="Query title, scribe…"
+                    className="w-full pl-10 pr-8 py-2.5 bg-paper text-sm border-2 border-ink/20 rounded-lg focus:outline-none focus:border-[#E85D35] transition-all font-display"
+                  />
+                  {searchInput && (
+                    <button
+                      type="button"
+                      onClick={() => { setSearchInput(""); pushParams({ search: "", page: "1" }); }}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink/40 hover:text-ink transition-colors cursor-pointer"
+                    >
+                      <CrossIcon />
+                    </button>
+                  )}
+                </div>
+                <button
+                  type="submit"
+                  className="btn-primary py-2.5 px-4 text-xs shrink-0"
+                  disabled={isPending}
+                >
+                  GO
+                </button>
+              </form>
             </div>
 
-            {/* Genre List selection */}
+            {/* Genre filter */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider block">Filter by Genre</label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 w-full">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-ink/60 block">
+                Filter by Genre
+              </label>
+              <div className="grid grid-cols-2 gap-2">
                 {ALL_GENRES.map((genre) => {
                   const isActive = selectedGenre === genre;
                   return (
                     <button
                       key={genre}
-                      onClick={() => setSelectedGenre(genre)}
-                      className={`text-[10px] sm:text-xs px-2 py-2.5 border-2 rounded transition-all cursor-pointer text-center w-full flex items-center justify-center font-bold tracking-wider leading-tight min-h-11 ${isActive
-                        ? "bg-sun text-paper border-ink shadow-ink-sm -translate-y-0.5"
-                        : "bg-transparent text-ink border-ink/30 hover:border-ink"
+                      onClick={() => handleGenreSelect(genre)}
+                      disabled={isPending}
+                      className={`text-[10px] px-2 py-2 border-2 rounded-lg transition-all cursor-pointer text-center font-bold tracking-wider leading-tight min-h-[40px] disabled:opacity-50 ${isActive
+                        ? "bg-[#E85D35] text-[#F0E3CE] border-[#0D0D15] shadow-[3px_3px_0px_#2A4056] -translate-y-0.5"
+                        : "bg-transparent text-[#0D0D15] border-[#0D0D15]/20 hover:border-[#0D0D15]"
                         }`}
                     >
                       {genre.toUpperCase()}
@@ -134,19 +241,22 @@ export default function BrowseBooksPage({ books }) {
               </div>
             </div>
 
-            {/* Scribes Selector */}
+            {/* Writer filter */}
             <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider block">Filter by Genre</label>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2 w-full">
+              <label className="text-[10px] font-bold uppercase tracking-widest text-ink/60 block">
+                Filter by Scribe
+              </label>
+              <div className="grid grid-cols-2 gap-2">
                 {ALL_WRITERS.map((writer) => {
                   const isActive = selectedWriter === writer;
                   return (
                     <button
                       key={writer}
-                      onClick={() => setSelectedWriter(writer)}
-                      className={`text-[10px] sm:text-xs px-2 py-2.5 border-2 rounded transition-all cursor-pointer text-center w-full flex items-center justify-center font-bold tracking-wider leading-tight min-h-11 ${isActive
-                        ? "bg-sun text-paper border-ink shadow-ink-sm -translate-y-0.5"
-                        : "bg-transparent text-ink border-ink/30 hover:border-ink"
+                      onClick={() => handleWriterSelect(writer)}
+                      disabled={isPending}
+                      className={`text-[10px] px-2 py-2 border-2 rounded-lg transition-all cursor-pointer text-center font-bold tracking-wider leading-tight min-h-[40px] disabled:opacity-50 ${isActive
+                        ? "bg-[#2A4056] text-[#F0E3CE] border-[#0D0D15] shadow-[3px_3px_0px_#E85D35] -translate-y-0.5"
+                        : "bg-transparent text-[#0D0D15] border-[#0D0D15]/20 hover:border-[#0D0D15]"
                         }`}
                     >
                       {writer.toUpperCase()}
@@ -156,65 +266,174 @@ export default function BrowseBooksPage({ books }) {
               </div>
             </div>
 
-            {/* Clear filters trigger */}
-            {(searchTerm || selectedGenre !== "All Genres" || selectedWriter !== "All Scribes") && (
+            {/* Clear all */}
+            {hasActiveFilters && (
               <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedGenre("All Genres");
-                  setSelectedWriter("All Scribes");
-                }}
-                className="btn-ghost w-full justify-center text-xs py-2 shadow-ink-sm mt-4"
+                onClick={handleClearAll}
+                disabled={isPending}
+                className="btn-ghost w-full justify-center text-[10px] uppercase tracking-widest py-2.5 shadow-ink-sm"
               >
-                RESTORE DEFAULT STACKS
+                Restore Default Stacks
               </button>
             )}
+
           </div>
         </aside>
 
-        { }
-        {/* Right Side: Responsive Book Grid */}
-        <div className="lg:col-span-8 space-y-8">
+        {/* ── Right: Book Grid + Pagination ── */}
+        <div className="lg:col-span-8 space-y-6">
 
-          <div className="flex justify-between items-center border-b-2 border-ink/10 pb-4">
-            <h2 className="section-heading text-xl font-extrabold tracking-wider">AVAILABLE CHRONICLES</h2>
-            <span className="text-xs font-bold bg-wave text-paper px-3 py-1 rounded-md border-2 border-ink">
-              {books.filter(book => book.parchment.toLowerCase() === 'published').length} SCROLLS FOUND
-            </span>
+          {/* Header row */}
+          <div className="flex flex-wrap justify-between items-center border-b-2 border-[#0D0D15]/10 pb-4 gap-3">
+            <h2 className="section-heading text-xl font-extrabold tracking-wider">
+              Available Chronicles
+            </h2>
+            <div className="flex items-center gap-2">
+              {isPending && (
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#CC7722] animate-pulse font-display">
+                  Consulting scrolls…
+                </span>
+              )}
+              <span className="text-xs font-bold bg-[#2A4056] text-[#F0E3CE] px-3 py-1.5 rounded-lg border-2 border-[#0D0D15] font-display">
+                {total} {total === 1 ? "SCROLL" : "SCROLLS"} FOUND
+              </span>
+            </div>
           </div>
 
-          {books.filter(book => book.parchment.toLowerCase() === 'published') === 0 ? (
-            <div className="text-center py-16 border-2 border-dashed border-ink/30 rounded-lg p-8 bg-paper/50">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border-3 border-ink bg-sun text-paper shadow-ink-sm mx-auto mb-4">
+          {/* Active filter chips */}
+          {hasActiveFilters && (
+            <div className="flex flex-wrap gap-2">
+              {currentSearch && (
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border-2 border-[#E85D35] bg-[#E85D35]/10 text-[#E85D35] font-display">
+                  &ldquo;{currentSearch}&rdquo;
+                  <button onClick={() => { setSearchInput(""); pushParams({ search: "", page: "1" }); }} className="hover:text-[#0D0D15] cursor-pointer"><CrossIcon /></button>
+                </span>
+              )}
+              {currentGenre && currentGenre !== "All Genres" && (
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border-2 border-[#2A4056] bg-[#2A4056]/10 text-[#2A4056] font-display">
+                  {currentGenre}
+                  <button onClick={() => handleGenreSelect("All Genres")} className="hover:text-[#0D0D15] cursor-pointer"><CrossIcon /></button>
+                </span>
+              )}
+              {currentWriter && currentWriter !== "All Scribes" && (
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border-2 border-[#CC7722] bg-[#CC7722]/10 text-[#CC7722] font-display">
+                  {currentWriter}
+                  <button onClick={() => handleWriterSelect("All Scribes")} className="hover:text-[#0D0D15] cursor-pointer"><CrossIcon /></button>
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Grid or empty state */}
+          {books.length === 0 ? (
+            <div className="card-ink text-center py-20 px-8 bg-paper flex flex-col items-center gap-5">
+              <div className="w-16 h-16 rounded-full border-3 border-[#0D0D15] bg-[#E85D35] text-[#F0E3CE] flex items-center justify-center shadow-ink-sm">
                 <BookOpenIcon />
               </div>
-              <h3 className="font-bold text-lg text-ink tracking-wider uppercase">NO MATCHING SCROLLS</h3>
-              <p className="text-sm text-ink/70 max-w-[40ch] mx-auto mt-2 leading-relaxed">
-                No wooden blocks have been carved with your exact query. Try broadening your criteria.
-              </p>
-              <button
-                onClick={() => {
-                  setSearchTerm("");
-                  setSelectedGenre("All Genres");
-                  setSelectedWriter("All Scribes");
-                }}
-                className="btn-primary text-xs py-2 px-4 shadow-ink-sm mt-6"
-              >
-                RESET PLATFORM SEARCH
+              <div className="space-y-2">
+                <h3 className="font-bold text-base text-ink tracking-wider uppercase">No Matching Scrolls</h3>
+                <p className="text-xs text-ink/60 max-w-[38ch] mx-auto leading-relaxed font-display">
+                  No wooden blocks have been carved with your exact query. Try broadening your criteria.
+                </p>
+              </div>
+              <button onClick={handleClearAll} className="btn-primary text-xs py-2 px-5 shadow-ink-sm">
+                Reset Platform Search
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 md:gap-6">
-              {
-                books.filter(book => book.parchment.toLowerCase() === 'published').map((book) => <BookCard book={book} key={book._id}></BookCard>)
-              }
+            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 transition-opacity duration-200 ${isPending ? "opacity-50" : "opacity-100"}`}>
+              {books.map((book) => (
+                <BookCard book={book} key={book._id} />
+              ))}
             </div>
           )}
+
+          {/* ── Pagination ── */}
+          {totalPages > 1 && (
+            <div className="pt-4 border-t-2 border-[#0D0D15]/10">
+              <Pagination className="justify-center">
+                <Pagination.Content className="gap-1.5 flex-wrap justify-center">
+
+                  {/* Previous */}
+                  <Pagination.Item>
+                    <Pagination.Previous
+                      isDisabled={currentPage === 1 || isPending}
+                      onPress={() => handlePageChange(currentPage - 1)}
+                      className={`
+                        inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border-2 font-display font-bold text-[10px] uppercase tracking-widest transition-all
+                        ${currentPage === 1 || isPending
+                          ? "border-[#0D0D15]/15 text-[#0D0D15]/30 cursor-not-allowed bg-transparent"
+                          : "border-[#0D0D15] text-[#0D0D15] bg-[#F0E3CE] hover:bg-[#0D0D15] hover:text-[#F0E3CE] shadow-[3px_3px_0px_#2A4056] hover:-translate-y-0.5 cursor-pointer"
+                        }
+                      `}
+                    >
+                      <Pagination.PreviousIcon>
+                        <ChevronLeftIcon />
+                      </Pagination.PreviousIcon>
+                      <span>Prev</span>
+                    </Pagination.Previous>
+                  </Pagination.Item>
+
+                  {/* Page numbers with ellipsis */}
+                  {paginationRange.map((item, idx) =>
+                    item === "..." ? (
+                      <Pagination.Item key={`ellipsis-${idx}`}>
+                        <Pagination.Ellipsis className="w-9 h-9 flex items-center justify-center font-display font-bold text-[#0D0D15]/40 text-xs" />
+                      </Pagination.Item>
+                    ) : (
+                      <Pagination.Item key={item}>
+                        <Pagination.Link
+                          isActive={item === currentPage}
+                          isDisabled={isPending}
+                          onPress={() => handlePageChange(item)}
+                          className={`
+                            w-9 h-9 flex items-center justify-center rounded-lg border-2 font-display font-bold text-xs transition-all cursor-pointer
+                            ${item === currentPage
+                              ? "bg-[#E85D35] text-[#F0E3CE] border-[#0D0D15] shadow-[3px_3px_0px_#2A4056] -translate-y-0.5"
+                              : "bg-[#F0E3CE] text-[#0D0D15] border-[#0D0D15]/20 hover:border-[#0D0D15] hover:shadow-[2px_2px_0px_#2A4056] hover:-translate-y-0.5"
+                            }
+                            ${isPending ? "opacity-50" : ""}
+                          `}
+                        >
+                          {item}
+                        </Pagination.Link>
+                      </Pagination.Item>
+                    )
+                  )}
+
+                  {/* Next */}
+                  <Pagination.Item>
+                    <Pagination.Next
+                      isDisabled={currentPage === totalPages || isPending}
+                      onPress={() => handlePageChange(currentPage + 1)}
+                      className={`
+                        inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border-2 font-display font-bold text-[10px] uppercase tracking-widest transition-all
+                        ${currentPage === totalPages || isPending
+                          ? "border-[#0D0D15]/15 text-[#0D0D15]/30 cursor-not-allowed bg-transparent"
+                          : "border-[#0D0D15] text-[#0D0D15] bg-[#F0E3CE] hover:bg-[#0D0D15] hover:text-[#F0E3CE] shadow-[3px_3px_0px_#2A4056] hover:-translate-y-0.5 cursor-pointer"
+                        }
+                      `}
+                    >
+                      <span>Next</span>
+                      <Pagination.NextIcon>
+                        <ChevronRightIcon />
+                      </Pagination.NextIcon>
+                    </Pagination.Next>
+                  </Pagination.Item>
+
+                </Pagination.Content>
+
+                {/* Summary */}
+                <Pagination.Summary className="font-display text-[10px] font-bold uppercase tracking-widest text-[#0D0D15]/50 text-center mt-3 block">
+                  Page {currentPage} of {totalPages} — {total} scrolls total
+                </Pagination.Summary>
+
+              </Pagination>
+            </div>
+          )}
+
         </div>
       </section>
-
-      { }
-
     </main>
   );
 }

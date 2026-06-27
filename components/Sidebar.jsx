@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 // import { authClient } from '@/lib/auth-client';
 import {
     House, Briefcase, Bell, User, Settings,
@@ -51,6 +51,7 @@ const readerNavLinks = [
     { icon: House, href: "/dashboard/reader", label: "Dashboard" },
     { icon: BookmarkIcon, href: "/dashboard/reader/bookmarks", label: "Bookmarks" },
     { icon: HistoryIcon, href: "/dashboard/reader/purchase-history", label: "Purchased Scribes" },
+    { icon: User2Icon, href: "/dashboard/reader/profile", label: "Profile" },
 ];
 
 const writerNavlinks = [
@@ -85,6 +86,7 @@ const navLinksMap = {
 export default function Sidebar() {
     const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);
+    const router = useRouter()
 
     const {
         data: session,
@@ -94,6 +96,19 @@ export default function Sidebar() {
     } = authClient.useSession()
     const role = session?.user?.role;
     const navItems = navLinksMap[role] || readerNavLinks;
+
+    async function handleSignOut() {
+        setMobileOpen(false);
+        await authClient.signOut({
+            fetchOptions: {
+                onSuccess: () => {
+                    router.push("/"); // redirect to login page
+                },
+            },
+        });
+        // Hook your authentic log out logic here
+        console.log("Unsealing active session credentials...");
+    }
 
     const isActive = (href) => {
         if (href === '/dashboard/reader' || href === '/dashboard/writer' || href === '/dashboard/admin') {
@@ -209,6 +224,7 @@ export default function Sidebar() {
             <div>
                 <button
                     type="button"
+                    onClick={handleSignOut}
                     className="btn-ghost text-sm py-2 px-4 text-center"
                 >
                     <CustomLogOutIcon />
@@ -242,7 +258,7 @@ export default function Sidebar() {
                         <Drawer.Header>
                             <Drawer.Heading>
                                 <span className="text-lg font-bold text-white">
-                                    Hire<span className="text-brand">Loop</span>
+                                    Fable
                                 </span>
                             </Drawer.Heading>
                         </Drawer.Header>
@@ -252,7 +268,7 @@ export default function Sidebar() {
                             <div className="mt-6">{publicNav}</div>
                             <div className="mt-4 border-t border-white/10 pt-4">
                                 <button
-                                    onClick={() => { setMobileOpen(false); }}
+                                    onClick={handleSignOut}
                                     className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-800/50"
                                 >
                                     <LogOut className="size-5" />

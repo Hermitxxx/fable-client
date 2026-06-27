@@ -118,9 +118,29 @@ export default function BookDetails({ book }) {
 
 
     // Format the raw timestamp to a beautiful classic layout
-    const formatDate = (dateStr) => {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateStr).toLocaleDateString('en-US', options);
+    const formatDateTime = (date) => {
+        if (!date) return "N/A";
+
+        const parsedDate = new Date(date);
+
+        // If it's a valid full date (ISO string, MongoDB date, etc.)
+        if (!isNaN(parsedDate.getTime())) {
+            return parsedDate.toLocaleString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            });
+        }
+
+        // Handle old records that only contain a time
+        if (typeof date === "string" && date.includes("GMT")) {
+            return date.split(" GMT")[0];
+        }
+
+        return "Unknown Date";
     };
 
     if (pageState === "LOADING") {
@@ -263,7 +283,7 @@ export default function BookDetails({ book }) {
                     <div className="flex flex-wrap items-center gap-4 py-3 border-y border-ink/15">
                         <div className="flex items-center gap-2">
                             <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-ink text-xs font-bold text-paper">
-                                <Image src={book.writerImage} width={100} height={100} alt={book.writerName} className="object-cover"></Image>
+                                <Image src={book.writerImage || 'https://robohash.org/eumquaecum.png?size=250x250&set=set1'} width={100} height={100} alt={book.writerName} className="object-cover"></Image>
                             </div>
                             <div>
                                 <p className="text-[10px] text-ink/50 uppercase tracking-widest font-display">Master Scribe</p>
@@ -282,7 +302,7 @@ export default function BookDetails({ book }) {
                             <span className="text-ink/60"><CalendarIcon /></span>
                             <div>
                                 <p className="text-[10px] text-ink/50 uppercase tracking-widest font-display">Uploaded</p>
-                                <p className="text-xs font-bold text-ink font-display">{formatDate(book.createdAt)}</p>
+                                <p className="text-xs font-bold text-ink font-display">{formatDateTime(book.createdAt)}</p>
                             </div>
                         </div>
                     </div>

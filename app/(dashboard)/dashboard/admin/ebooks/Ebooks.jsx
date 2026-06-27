@@ -55,6 +55,8 @@ export default function AdminEbooksPage({ ebooks }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedGenreFilter, setSelectedGenreFilter] = useState("all");
 
+    console.log(ebooks);
+
     const handleToggleStatus = async (bookId, parchment) => {
         const data = {
             bookId,

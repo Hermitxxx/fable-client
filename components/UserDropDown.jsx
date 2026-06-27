@@ -1,6 +1,7 @@
 "use client";
 
 import { authClient } from "@/app/lib/auth-client";
+import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
 
@@ -77,8 +78,8 @@ export default function UserDropDown({ user }) {
                 aria-haspopup="true"
             >
                 {/* Red stamp-style circle containing initial */}
-                <div className="w-8 h-8 rounded-full border-2 border-ink bg-sun flex items-center justify-center font-display font-extrabold text-sm text-paper shadow-sm select-none shrink-0">
-                    {user?.image || 'A'}
+                <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-ink bg-sun flex items-center justify-center font-display font-extrabold text-sm text-paper shadow-sm select-none shrink-0">
+                    <Image src={user?.image || 'https://robohash.org/eumquaecum.png?size=250x250&set=set1'} width={100} height={100} alt={user?.name}></Image>
                 </div>
 
                 {/* Hidden on small screens, matches the elegant layout spacing */}

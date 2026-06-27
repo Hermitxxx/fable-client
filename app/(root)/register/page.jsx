@@ -1,6 +1,7 @@
 "use client";
 
 import { authClient } from "@/app/lib/auth-client";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const WaveCrestIcon = () => (
@@ -83,6 +84,8 @@ export default function RegisterPage() {
     const [errors, setErrors] = useState({});
     const [submitted, setSubmitted] = useState(false);
 
+    const router = useRouter()
+
     const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
 
     const handleRegisterSubmit = async (e) => {
@@ -116,6 +119,14 @@ export default function RegisterPage() {
             role: role // required
         });
 
+        await authClient.signOut({
+            fetchOptions: {
+                onSuccess: () => {
+                    router.push("/login"); // redirect to login page
+                },
+            },
+        });
+
         if (response) {
             setSubmitted(true);
         }
@@ -123,6 +134,11 @@ export default function RegisterPage() {
         setErrors({});
         console.log("Account Created successfully:", { role });
     };
+
+    const handleVault = () => {
+        setSubmitted(false)
+        router.push('/login')
+    }
 
     return (
         <main className="min-h-[100dvh] flex items-center my-22 justify-center p-4 md:p-8 bg-[#F0E3CE]">
@@ -199,7 +215,7 @@ export default function RegisterPage() {
                                 <h2 className="font-display font-bold text-2xl text-[#0D0D15]">SIGNATURE FILED</h2>
                                 <p className="font-display text-sm text-[#0D0D15]/85">Your identity scroll is verified. Prepare your inkwells.</p>
                                 <div className="pt-4">
-                                    <button onClick={() => setSubmitted(false)} className="btn-primary shadow-ink-sm">Proceed to Vault</button>
+                                    <button onClick={handleVault} className="btn-primary shadow-ink-sm">Proceed to Vault</button>
                                 </div>
                             </div>
                         ) : (

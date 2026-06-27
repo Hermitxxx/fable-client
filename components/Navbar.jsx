@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, X, BookOpen } from "lucide-react";
 import UserDropDown from "./UserDropDown";
 import { authClient } from "@/app/lib/auth-client";
+import LoadingSpinner from "./LoadingSpinner";
 
 const navLinks = [
   { label: "Browse", href: "/books" },
@@ -49,16 +50,17 @@ export default function Navbar() {
 
           {
             user ? <UserDropDown user={user}></UserDropDown> :
-              <>
-                <div className="hidden md:flex items-center gap-3">
-                  <Link href="/login" className="btn-ghost text-sm py-2 px-4">
-                    Sign In
-                  </Link>
-                  <Link href="/register" className="btn-primary text-sm py-2 px-4">
-                    Get Started
-                  </Link>
-                </div>
-              </>
+              session && isPending ? <LoadingSpinner></LoadingSpinner> :
+                <>
+                  <div className="hidden md:flex items-center gap-3">
+                    <Link href="/login" className="btn-ghost text-sm py-2 px-4">
+                      Sign In
+                    </Link>
+                    <Link href="/register" className="btn-primary text-sm py-2 px-4">
+                      Get Started
+                    </Link>
+                  </div>
+                </>
           }
 
           <button

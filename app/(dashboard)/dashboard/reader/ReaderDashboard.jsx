@@ -1,6 +1,8 @@
 "use client";
 
 import React from "react";
+import { GiBookshelf } from "react-icons/gi";
+import { PiEmptyBold } from "react-icons/pi";
 
 /* ---------- Icons (kept local + minimal, matching the line-icon language used on the writer page) ---------- */
 
@@ -103,8 +105,8 @@ export default function ReaderDashboard({ books: purchases }) {
                 </div>
 
                 {purchases.length === 0 ? (
-                    <div className="text-center py-16 border-2 border-dashed border-ink/30 rounded-lg bg-ink/5">
-                        <LedgerIcon />
+                    <div className="flex flex-col items-center justify-center gap-1 py-16 border-2 border-dashed border-ink/30 rounded-lg bg-ink/5">
+                        <PiEmptyBold size={60} />
                         <h3 className="font-display font-bold text-sm uppercase mt-3">No Entries Yet</h3>
                         <p className="text-[11px] text-ink/60 mt-1">Acquired scrolls will be recorded here.</p>
                     </div>
@@ -176,8 +178,8 @@ export default function ReaderDashboard({ books: purchases }) {
                 </div>
 
                 {library.length === 0 ? (
-                    <div className="text-center py-16 border-2 border-dashed border-ink/30 rounded-lg bg-ink/5">
-                        <ShelfIcon />
+                    <div className="flex flex-col gap-1 items-center justify-center py-16 border-2 border-dashed border-ink/30 rounded-lg bg-ink/5">
+                        <GiBookshelf size={60}></GiBookshelf>
                         <h3 className="font-display font-bold text-sm uppercase mt-3">Shelf Is Empty</h3>
                         <p className="text-[11px] text-ink/60 mt-1">Books you purchase will appear here.</p>
                     </div>

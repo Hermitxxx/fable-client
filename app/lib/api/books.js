@@ -8,8 +8,11 @@ export async function getFeaturedBooks() {
 }
 
 // get all books
-export async function getAllBooks() {
-    const { data } = await openFetch('/api/books')
+export async function getAllBooks(queryString = "") {
+    const url = queryString
+        ? `/api/books?${queryString}`
+        : `/api/books`;
+    const { data } = await openFetch(url)
     return data;
 }
 
@@ -23,5 +26,14 @@ export async function getBookDetailsById(id) {
 export async function getBooksByWriterId(id) {
     const data = await secureFetch(`/api/writer-books?writerId=${id}`)
     console.log(data);
+    return data;
+}
+
+// get books for admin dashboard
+export async function getAllBooksAdmin(queryString = "") {
+    const url = queryString
+        ? `/api/books-admin?${queryString}`
+        : `/api/books-admin`;
+    const { data } = await openFetch(url)
     return data;
 }

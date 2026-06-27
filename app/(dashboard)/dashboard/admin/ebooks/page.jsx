@@ -1,9 +1,12 @@
 import React from 'react';
 import AdminEbooksPage from './Ebooks';
-import { getAllBooks } from '@/app/lib/api/books';
+import { getAllBooks, getAllBooksAdmin } from '@/app/lib/api/books';
 
 const EbooksPage = async () => {
-    const ebooks = await getAllBooks()
+    const data = await getAllBooksAdmin('')
+    const ebooks = data.books
+
+    console.log(ebooks);
     return (
         <AdminEbooksPage ebooks={ebooks}></AdminEbooksPage>
     );
