@@ -2,6 +2,7 @@
 
 import { uploadBook } from "@/app/lib/actions/books";
 import { authClient } from "@/app/lib/auth-client";
+import { showSuccessToast } from "@/components/SuccessToast";
 import React, { useState, useRef } from "react";
 
 const InkwellIcon = () => (
@@ -139,6 +140,7 @@ export default function AddEbookForm() {
         console.log("Sealed Scribe Form Data:", bookDetails);
 
         const res = await uploadBook(bookDetails)
+        showSuccessToast(bookDetails.title, { head: `${bookDetails.parchment}`, parchment: `was ${bookDetails.parchment} to system.` })
 
         console.log(res);
 

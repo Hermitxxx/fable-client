@@ -2,12 +2,12 @@ import { openFetch, secureFetch } from "../core/server";
 
 // get top writers
 export async function getTopWriters() {
-    const { data, message } = await openFetch('/api/top-writers')
+    const data = await openFetch('/api/top-writers')
     return data;
 }
 
 export async function getAllWriters() {
-    const { data, message } = await openFetch('/api/writers')
+    const data = await openFetch('/api/writers')
     return data;
 }
 

@@ -1,12 +1,13 @@
-import { getBookDetailsById } from '@/app/lib/api/books';
+import { getBookDetailsById, getBooksByWriterId } from '@/app/lib/api/books';
 import React from 'react';
 import BookDetails from './BookDetails';
 
 const BooksDetailsPage = async ({ params }) => {
     const { id } = await params
     const book = await getBookDetailsById(id)
+    const writerWorks = await getBooksByWriterId(book.writerId)
     return (
-        <BookDetails book={book}></BookDetails>
+        <BookDetails writerWorks={writerWorks} book={book}></BookDetails>
     );
 };
 

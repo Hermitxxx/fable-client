@@ -1,26 +1,9 @@
 'use client'
 
-import { getBooksByWriterId } from '@/app/lib/api/books';
 import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 
-const OtherWorks = ({ writerId }) => {
-    const [works, setWorks] = useState([])
-
-    useEffect(() => {
-        try {
-            const getWriterWorks = async () => {
-                const writerWorks = await getBooksByWriterId(writerId)
-                setWorks(writerWorks)
-                return writerWorks
-            }
-
-            getWriterWorks()
-        } catch (error) {
-            return
-        }
-    }, [writerId])
-
+const OtherWorks = ({ writerWorks: works }) => {
     console.log(works); // returning undefined
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

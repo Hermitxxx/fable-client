@@ -3,6 +3,7 @@
 import { addToBookmark } from "@/app/lib/actions/bookmark";
 import { authClient } from "@/app/lib/auth-client";
 import OtherWorks from "@/components/OtherWorks";
+import { showSuccessToast } from "@/components/SuccessToast";
 import { Button } from "@heroui/react";
 import Image from "next/image";
 import Link from "next/link";
@@ -74,10 +75,11 @@ const TagIcon = () => (
     </svg>
 );
 
-export default function BookDetails({ book }) {
+export default function BookDetails({ book, writerWorks }) {
     // Mock session states (feel free to connect these to your global auth/state providers)
     const [pageState, setPageState] = useState("LOADED"); // Options: "LOADED", "LOADING", "NOT_FOUND"
     const [isBookmarked, setIsBookmarked] = useState(false);
+    const isSold = book.status.toLowerCase() === 'sold'
 
     const {
         data: session,
@@ -89,13 +91,14 @@ export default function BookDetails({ book }) {
     const user = session?.user
 
     // handle bookmark fucntions
-    async function handleBookmark(bookId) {
+    async function handleBookmark(bookId, title) {
         const data = {
             userId: user?.id,
             bookId: bookId
         }
 
         const res = await addToBookmark(data)
+        showSuccessToast(title, { head: `Scroll Bookmarked`, parchment: `was bookmarked.` })
         console.log(data);
     }
 
@@ -250,7 +253,7 @@ export default function BookDetails({ book }) {
 
                     {/* Bookmark Woodblock button */}
                     <button
-                        onClick={() => handleBookmark(book._id)}
+                        onClick={() => handleBookmark(book._id, book.title)}
                         className={`w-70 md:w-[320px] mt-6 flex items-center justify-center gap-2 py-3 border-2 rounded-lg font-display text-xs font-bold uppercase transition-all shadow-ink-sm cursor-pointer ${isBookmarked
                             ? "bg-ochre text-paper border-ink"
                             : "bg-transparent text-ink border-ink hover:bg-ink/5"
@@ -324,7 +327,7 @@ export default function BookDetails({ book }) {
                             </p>
                         </div>
 
-                        <Button onClick={() => handlePurchase(book._id)} className={`btn-primary text-sm py-2 px-4 text-center justify-center`}>Purchase</Button>
+                        <Button isDisabled={isSold} onClick={() => handlePurchase(book._id)} className={`btn-primary text-sm py-2 px-4 text-center justify-center`}>Purchase <span className={`text-ink ${!isSold && 'hidden'}`}>{isSold && '(Sold Out)'}</span></Button>
                     </div>
 
                 </div>
@@ -344,7 +347,7 @@ export default function BookDetails({ book }) {
                     </a>
                 </div>
 
-                <OtherWorks writerId={book.writerId}></OtherWorks>
+                <OtherWorks writerWorks={writerWorks}></OtherWorks>
             </section>
 
         </main>

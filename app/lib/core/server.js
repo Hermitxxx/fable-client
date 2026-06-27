@@ -1,10 +1,19 @@
 import { API_BASE_URL } from "../constants"
+import { getUserToken } from "./session";
+
+export const authHeader = async () => {
+    const token = await getUserToken();
+    console.log(token);
+    const header = token ? {
+        authorization: `Bearer ${token}`
+    } : {};
+    return header;
+}
 
 export async function openFetch(path) {
     try {
         const res = await fetch(`${API_BASE_URL}${path}`)
-        const data = await res.json()
-        return { success: true, data: data }
+        return handleStatusCode(res);
     } catch (error) {
         return { success: false, message: 'Something went wrong' }
     }
@@ -14,9 +23,10 @@ export async function openFetch(path) {
 
 export async function secureFetch(path) {
     try {
-        const res = await fetch(`${API_BASE_URL}${path}`)
-        const data = await res.json()
-        return data
+        const res = await fetch(`${API_BASE_URL}${path}`, {
+            headers: await authHeader()
+        })
+        return handleStatusCode(res);
     } catch (error) {
         return { success: false, message: 'Something went wrong' }
     }
@@ -29,7 +39,8 @@ export async function serverMutate(path, data = null, method = 'POST') {
     const options = {
         method: method,
         headers: {
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            ... await authHeader()
         },
     }
 

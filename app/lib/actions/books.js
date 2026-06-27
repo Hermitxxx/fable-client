@@ -23,6 +23,7 @@ export async function deleteBook(id) {
 export async function uploadBook(data) {
     const result = await serverMutate(`/api/books`, data, 'POST')
     revalidatePath('/dashboard/writer/ebooks')
+    revalidatePath('/dashboard/writer/add-ebook')
     revalidatePath('/books')
     return result
 }

@@ -2,6 +2,7 @@
 
 import { bookParchment, deleteBook } from "@/app/lib/actions/books";
 import { showUserDeletedToast } from "@/components/DeleteToast";
+import { showSuccessToast } from "@/components/SuccessToast";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -62,7 +63,7 @@ export default function WriterDashboard({ books }) {
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedGenreFilter, setSelectedGenreFilter] = useState("all");
 
-    const handleToggleStatus = async (bookId, parchment) => {
+    const handleToggleStatus = async (bookId, title, parchment) => {
         const data = {
             bookId,
             parchment
@@ -71,6 +72,7 @@ export default function WriterDashboard({ books }) {
         console.log(data);
 
         const res = await bookParchment(data)
+        showSuccessToast(title, { head: `${data.parchment}`, parchment: `was ${data.parchment} to system.` })
     };
 
     const handleDeleteEbook = async (bookId, bookTitle) => {
@@ -274,7 +276,7 @@ export default function WriterDashboard({ books }) {
                                         <td className="px-6 py-4 bg-transparent">
                                             <div className="flex items-center gap-2">
                                                 <button
-                                                    onClick={() => handleToggleStatus(book._id, book.parchment === 'published' ? 'unpublished' : 'published')}
+                                                    onClick={() => handleToggleStatus(book._id, book.title, book.parchment === 'published' ? 'unpublished' : 'published')}
                                                     type="button"
                                                     className={`px-3 py-1.5 border-2 border-ink rounded-lg font-display text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-ink-sm active:translate-y-px ${book.parchment.toLowerCase() === "published"
                                                         ? "bg-ochre text-paper"
@@ -373,7 +375,7 @@ export default function WriterDashboard({ books }) {
 
                             <div className="flex items-center gap-2 pt-1">
                                 <button
-                                    onClick={() => handleToggleStatus(book._id, book.parchment === 'published' ? 'unpublished' : 'published')}
+                                    onClick={() => handleToggleStatus(book._id, book.title, book.parchment === 'published' ? 'unpublished' : 'published')}
                                     type="button"
                                     className={`px-3 py-1.5 border-2 border-ink rounded-lg font-display text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-ink-sm active:translate-y-px ${book.parchment.toLowerCase() === "published"
                                         ? "bg-ochre text-paper"

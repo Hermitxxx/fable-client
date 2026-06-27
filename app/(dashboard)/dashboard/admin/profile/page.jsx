@@ -9,6 +9,7 @@ const page = async () => {
     const name = user?.name
     const role = user?.role
     const image = user?.image
+
     return (
         <ProfilePageAdmin image={image} name={name} role={role}></ProfilePageAdmin>
     );

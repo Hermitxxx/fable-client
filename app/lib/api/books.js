@@ -3,7 +3,7 @@ import { openFetch, secureFetch } from "../core/server";
 
 // get featured books
 export async function getFeaturedBooks() {
-    const { data } = await openFetch('/api/featured-books')
+    const data = await openFetch('/api/featured-books')
     return data;
 }
 
@@ -12,7 +12,7 @@ export async function getAllBooks(queryString = "") {
     const url = queryString
         ? `/api/books?${queryString}`
         : `/api/books`;
-    const { data } = await openFetch(url)
+    const data = await openFetch(url)
     return data;
 }
 
@@ -34,6 +34,6 @@ export async function getAllBooksAdmin(queryString = "") {
     const url = queryString
         ? `/api/books-admin?${queryString}`
         : `/api/books-admin`;
-    const { data } = await openFetch(url)
+    const data = await openFetch(url)
     return data;
 }

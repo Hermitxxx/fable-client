@@ -6,10 +6,13 @@ import { GiWaveCrest, GiOldBricks } from "react-icons/gi";
 import { RiGalleryLine, RiCompassDiscoverLine } from "react-icons/ri";
 import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
 import { authClient } from "@/app/lib/auth-client";
+import { useRouter } from "next/navigation";
+import { alertToast } from "@/components/AlertToast";
 
 export default function LoginPage() {
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [errors, setErrors] = useState({});
+
+    const router = useRouter()
 
     const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
 
@@ -17,27 +20,26 @@ export default function LoginPage() {
         e.preventDefault();
         const data = Object.fromEntries(new FormData(e.currentTarget));
 
-        // Simple client-side validation hook conforming to Hero UI flow
-        const newErrors = {};
-        if (!data.email) newErrors.email = "The collector's digital address is missing.";
-        if (!data.password || data.password.length < 6) {
-            newErrors.password = "The ink seal must contain at least 6 characters.";
+        try {
+            const { data: response, error } = await authClient.signIn.email({
+                email: data.email, // required
+                password: data.password, // required
+                rememberMe: true,
+                callbackURL: '/'
+            });
+
+            if (response) {
+                router.push('/')
+            }
+
+            if (error) {
+                alertToast(error.message)
+            }
+
+            console.log("Verified collector authentication payload:", response);
+        } catch (err) {
+            alertToast(err?.message || "Something went wrong while signing in.");
         }
-
-        if (Object.keys(newErrors).length > 0) {
-            setErrors(newErrors);
-            return;
-        }
-
-        const { data: response, error } = await authClient.signIn.email({
-            email: data.email, // required
-            password: data.password, // required
-            rememberMe: true,
-            callbackURL: '/'
-        });
-
-        setErrors({});
-        console.log("Verified collector authentication payload:", response);
     };
 
     return (
@@ -98,10 +100,16 @@ export default function LoginPage() {
                         >
                             {/* Email Address Field */}
                             <TextField
-                                isInvalid={!!errors.email}
+                                isRequired
                                 className="w-full flex flex-col gap-2"
                                 name="email"
                                 type="email"
+                                validate={(value) => {
+                                    if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(value)) {
+                                        return "Please enter a valid email address";
+                                    }
+                                    return null;
+                                }}
                             >
                                 <Label className="font-display text-sm font-medium text-ink">
                                     DIGITAL ACCOUNT ADDRESS
@@ -112,17 +120,29 @@ export default function LoginPage() {
                                     </span>
                                     <Input
                                         placeholder="scribe@fable-revival.jp"
-                                        className="w-full px-10 py-3 bg-paper font-display text-base border-ink-thin rounded-lg focus:outline-none focus:border-ink focus:ring-2 focus:ring-sun focus:ring-offset-2 transition-all"
+                                        className="w-full px-10 py-3 bg-paper normal-case font-display text-base border-ink-thin rounded-lg focus:outline-none focus:border-ink focus:ring-2 focus:ring-sun focus:ring-offset-2 transition-all"
                                     />
                                 </div>
-                                {errors.email && <FieldError className="text-xs font-medium text-red-600 mt-1">{errors.email}</FieldError>}
+                                <FieldError />
                             </TextField>
 
                             {/* Password Field */}
                             <TextField
-                                isInvalid={!!errors.password}
+                                isRequired
                                 className="w-full flex flex-col gap-2"
                                 name="password"
+                                validate={(value) => {
+                                    if (value.length < 8) {
+                                        return "Password must be at least 8 characters";
+                                    }
+                                    if (!/[A-Z]/.test(value)) {
+                                        return "Password must contain at least one uppercase letter";
+                                    }
+                                    if (!/[0-9]/.test(value)) {
+                                        return "Password must contain at least one number";
+                                    }
+                                    return null;
+                                }}
                             >
                                 <div className="flex justify-between items-center">
                                     <Label className="font-display text-sm font-medium text-ink">
@@ -139,7 +159,7 @@ export default function LoginPage() {
                                     <Input
                                         type={passwordVisible ? "text" : "password"}
                                         placeholder="••••••••••••"
-                                        className="w-full px-10 py-3 bg-paper font-display text-base border-ink-thin rounded-lg focus:outline-none focus:border-ink focus:ring-2 focus:ring-sun focus:ring-offset-2 transition-all"
+                                        className="w-full px-10 py-3 bg-paper font-display text-base border-ink-thin rounded-lg focus:outline-none normal-case focus:border-ink focus:ring-2 focus:ring-sun focus:ring-offset-2 transition-all"
                                     />
                                     <button
                                         type="button"
@@ -149,7 +169,7 @@ export default function LoginPage() {
                                         {passwordVisible ? <FiEyeOff className="text-base" /> : <FiEye className="text-base" />}
                                     </button>
                                 </div>
-                                {errors.password && <FieldError className="text-xs font-medium text-red-600 mt-1">{errors.password}</FieldError>}
+                                <FieldError />
                             </TextField>
 
                             {/* Remember Me Toggle */}
