@@ -3,7 +3,9 @@
 import { deleteBook } from "@/app/lib/actions/books";
 import { EditBookModal } from "@/components/BookEditModal";
 import { showUserDeletedToast } from "@/components/DeleteToast";
+import { File, FileBoxIcon } from "lucide-react";
 import React, { useState } from "react";
+import { GiBookshelf } from "react-icons/gi";
 
 const BrushIcon = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 shrink-0" aria-hidden="true">
@@ -123,8 +125,8 @@ export default function WriterEbooks({ ebooks }) {
             <div className="space-y-16">
 
                 {filteredChronicles.length === 0 ? (
-                    <div className="text-center py-20 border-2 border-dashed border-ink/30 rounded-lg bg-ink/5">
-                        <ScrollIcon />
+                    <div className="flex items-center justify-center flex-col py-20 border-2 border-dashed border-ink/30 rounded-lg bg-ink/5">
+                        <GiBookshelf size={60}></GiBookshelf>
                         <h3 className="font-display font-bold text-base uppercase mt-3">Empty Cabinet Section</h3>
                         <p className="text-[11px] text-ink/60 mt-1">No manuscripts fit your active filter category.</p>
                     </div>

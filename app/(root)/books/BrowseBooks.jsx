@@ -46,19 +46,6 @@ const ChevronRightIcon = () => (
   </svg>
 );
 
-// ─── constants ────────────────────────────────────────────────────────────────
-
-const ALL_GENRES = [
-  "All Genres", "Fiction", "Waka Poetry", "Folklore",
-  "Historical Scroll", "Scribe Journal", "Horror",
-  "Fantasy", "Romance", "Mystery",
-];
-
-const ALL_WRITERS = [
-  "All Scribes", "Albert Dera", "Master Basho",
-  "Murasaki Shikibu", "Chiyo-ni", "Hokusai",
-];
-
 // How many page buttons to show around the current page
 const SIBLING_COUNT = 1;
 
@@ -83,6 +70,7 @@ function getPaginationRange(current, total) {
 // ─── component ────────────────────────────────────────────────────────────────
 
 export default function BrowseBooksPage({
+  writers,
   books = [],
   total = 0,
   totalPages = 1,
@@ -91,6 +79,11 @@ export default function BrowseBooksPage({
   currentGenre = "",
   currentWriter = "",
 }) {
+  const writersName = writers.map(writer => writer.name);
+  const ALL_WRITERS = ["All Scribes", ...writersName]
+
+  const genres = books.map(book => book.genre);
+  const ALL_GENRES = ["All Genres", ...genres]
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -168,10 +161,10 @@ export default function BrowseBooksPage({
         <div className="fixed inset-0 z-[200] pointer-events-none bg-paper/30 transition-opacity" />
       )}
 
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start min-h-screen">
 
         {/* ── Left: Filter Panel ── */}
-        <aside className="lg:col-span-4 card-ink p-6 bg-paper lg:sticky lg:top-24">
+        <aside className="lg:col-span-4 card-ink p-6 bg-paper lg:sticky lg:top-0">
           <div className="space-y-6">
 
             <div className="flex items-center gap-2 border-b-2 border-ink/10 pb-4">
@@ -222,11 +215,11 @@ export default function BrowseBooksPage({
                 Filter by Genre
               </label>
               <div className="grid grid-cols-2 gap-2">
-                {ALL_GENRES.map((genre) => {
+                {ALL_GENRES.map((genre, i) => {
                   const isActive = selectedGenre === genre;
                   return (
                     <button
-                      key={genre}
+                      key={i}
                       onClick={() => handleGenreSelect(genre)}
                       disabled={isPending}
                       className={`text-[10px] px-2 py-2 border-2 rounded-lg transition-all cursor-pointer text-center font-bold tracking-wider leading-tight min-h-[40px] disabled:opacity-50 ${isActive

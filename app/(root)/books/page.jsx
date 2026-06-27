@@ -1,6 +1,7 @@
 import React from 'react';
 import BrowseBooksPage from './BrowseBooks';
 import { getAllBooks } from '@/app/lib/api/books';
+import { getAllWriters } from '@/app/lib/api/writers';
 
 // page.jsx is a Server Component — it reads searchParams and passes
 // everything down to the client component as plain props.
@@ -20,10 +21,13 @@ const BooksPage = async ({ searchParams }) => {
     if (page) query.set("page", String(page));
     query.set("limit", "9"); // 9 books per page (3×3 grid)
 
+    const writers = await getAllWriters()
+
     const { books, total, totalPages } = await getAllBooks(query.toString());
 
     return (
         <BrowseBooksPage
+            writers={writers}
             books={books}
             total={total}
             totalPages={totalPages}

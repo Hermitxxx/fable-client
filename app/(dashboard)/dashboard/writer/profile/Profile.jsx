@@ -181,14 +181,16 @@ export default function ProfilePage({ name, role, image }) {
         })
 
         console.log(res);
-        setTimeout(() => {
-            setIsSaving(false);
-            setShowSuccessToast(true);
-
+        if (res.data.status === true) {
             setTimeout(() => {
-                setShowSuccessToast(false);
-            }, 4000);
-        }, 1200);
+                setIsSaving(false);
+                setShowSuccessToast(true);
+
+                setTimeout(() => {
+                    setShowSuccessToast(false);
+                }, 4000);
+            }, 1200);
+        }
     };
 
     return (

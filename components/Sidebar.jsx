@@ -73,7 +73,6 @@ const adminNavLinks = [
 const publicLinks = [
     { icon: House, href: "/", label: "Home" },
     { icon: Search, href: "/books", label: "Browse Scribes" },
-    { icon: Building, href: "/writers", label: "Sribe Masters" },
     { icon: CreditCard, href: "/about", label: "About Fable" },
 ];
 

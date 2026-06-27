@@ -2,6 +2,7 @@
 
 import { bookParchment, deleteBook } from "@/app/lib/actions/books";
 import { showUserDeletedToast } from "@/components/DeleteToast";
+import { showSuccessToast } from "@/components/SuccessToast";
 import { toast } from "@heroui/react";
 import Image from "next/image";
 import React, { useState } from "react";
@@ -57,7 +58,7 @@ export default function AdminEbooksPage({ ebooks }) {
 
     console.log(ebooks);
 
-    const handleToggleStatus = async (bookId, parchment) => {
+    const handleToggleStatus = async (bookId, title, parchment) => {
         const data = {
             bookId,
             parchment
@@ -66,6 +67,7 @@ export default function AdminEbooksPage({ ebooks }) {
         console.log(data);
 
         const res = await bookParchment(data)
+        showSuccessToast(title, { head: `${data.parchment}`, parchment: `was ${data.parchment} to system.` })
     };
 
     const handleDeleteEbook = async (bookId, bookTitle) => {
@@ -288,7 +290,7 @@ export default function AdminEbooksPage({ ebooks }) {
                                             <div className="flex items-center gap-2">
                                                 {/* Publish Toggle Button */}
                                                 <button
-                                                    onClick={() => handleToggleStatus(book._id, book.parchment === 'published' ? 'unpublished' : 'published')}
+                                                    onClick={() => handleToggleStatus(book._id, book.title, book.parchment === 'published' ? 'unpublished' : 'published')}
                                                     type="button"
                                                     className={`px-3 py-1.5 border-2 border-ink rounded-lg font-display text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-ink-sm active:translate-y-px ${book.parchment.toLowerCase() === "published"
                                                         ? "bg-ochre text-paper"
@@ -405,7 +407,7 @@ export default function AdminEbooksPage({ ebooks }) {
                                 </span>
                                 <div className="flex items-center gap-2 justify-between">
                                     <button
-                                        onClick={() => handleToggleStatus(book._id, book.parchment === 'published' ? 'unpublished' : 'published')}
+                                        onClick={() => handleToggleStatus(book._id, book.title, book.parchment === 'published' ? 'unpublished' : 'published')}
                                         type="button"
                                         className={`px-3 py-2 border-2 border-ink rounded-lg font-display text-[9px] font-bold uppercase tracking-wider transition-all cursor-pointer shadow-ink-sm flex-1 text-center flex items-center justify-center gap-1.5 ${book.parchment.toLowerCase() === "published"
                                             ? "bg-ochre text-paper"

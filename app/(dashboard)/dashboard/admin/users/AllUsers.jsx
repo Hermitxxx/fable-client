@@ -2,6 +2,7 @@
 
 import { deleteUser, updateUserRole } from "@/app/lib/actions/users";
 import { showUserDeletedToast } from "@/components/DeleteToast";
+import { showSuccessToast } from "@/components/SuccessToast";
 import React, { useState } from "react";
 
 const TrashIcon = () => (
@@ -47,6 +48,7 @@ export default function AllUsers({ allUsers: users }) {
         console.log(data);
 
         const res = await updateUserRole(data)
+        showSuccessToast("Role", { head: `Role Changed`, parchment: `is set to ${newRole}` })
     };
 
     const handleDeleteUser = async (userId, userName) => {

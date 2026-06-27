@@ -1,6 +1,7 @@
 "use client";
 
 import { removeBookmark } from "@/app/lib/actions/bookmark";
+import { showSuccessToast } from "@/components/SuccessToast";
 import React, { useState } from "react";
 
 const WaveCrestIcon = () => (
@@ -34,9 +35,10 @@ const StarIcon = () => (
 );
 
 export default function WriterBookmarkBooks({ bookmarkBooks: bookmarks }) {
-    const handleRemoveBookmark = async (bookId) => {
+    const handleRemoveBookmark = async (bookId, title) => {
         const res = await removeBookmark(bookId)
         console.log(res);
+        showSuccessToast(title, { head: `Scroll Removed`, parchment: `is unfurled.` })
     };
 
     return (
@@ -176,7 +178,7 @@ export default function WriterBookmarkBooks({ bookmarkBooks: bookmarks }) {
                                     <div className="px-6 pb-6 pt-3 bg-wave/5 border-t border-ink/10 rounded-b-xl">
                                         <button
                                             type="button"
-                                            onClick={() => { handleRemoveBookmark(book._id) }}
+                                            onClick={() => { handleRemoveBookmark(book._id, book.title) }}
                                             className="flex-1 w-full inline-flex items-center justify-center gap-1.5 py-2.5 border-2 border-ink bg-sun text-paper hover:bg-wave rounded-lg shadow-ink-sm text-[10px] font-extrabold uppercase tracking-wider transition-all cursor-pointer active:translate-y-px active:shadow-none"
                                         >
                                             <BookOpenSealIcon />
