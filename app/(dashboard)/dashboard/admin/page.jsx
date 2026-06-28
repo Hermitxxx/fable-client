@@ -57,7 +57,7 @@ function buildGenreCounts(transactions) {
 function BarChart({ months }) {
     if (!months.length) {
         return (
-            <div className="flex items-center justify-center h-[220px] text-[#0D0D15]/40 font-display text-xs uppercase tracking-wider">
+            <div className="flex items-center justify-center h-[220px] text-ink/40 font-display text-xs uppercase tracking-wider">
                 No transaction data yet
             </div>
         );
@@ -134,7 +134,7 @@ function BarChart({ months }) {
 function DonutChart({ genres }) {
     if (!genres.length) {
         return (
-            <div className="flex items-center justify-center py-4 text-[#0D0D15]/40 font-display text-xs uppercase tracking-wider">
+            <div className="flex items-center justify-center py-4 text-ink/40 font-display text-xs uppercase tracking-wider">
                 No genre data yet
             </div>
         );
@@ -213,7 +213,7 @@ const AdminPage = async () => {
                     <h2 className="section-heading text-2xl font-bold uppercase tracking-wider">
                         Imperial Ledger Overview
                     </h2>
-                    <p className="font-display text-xs text-[#0D0D15]/60 mt-3 max-w-[65ch]">
+                    <p className="font-display text-xs text-ink/60 mt-3 max-w-[65ch]">
                         Visual records of the Scribe Covenant&apos;s earnings, catalog expansions, and active platform participants.
                     </p>
                 </div>
@@ -222,7 +222,7 @@ const AdminPage = async () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
                     <div className="card-ink p-5 bg-[#F0E3CE]">
-                        <p className="text-[10px] uppercase font-bold text-[#0D0D15]/50 tracking-wider font-display">
+                        <p className="text-[10px] uppercase font-bold text-ink/50 tracking-wider font-display">
                             Total Scrolls Read
                         </p>
                         <div className="flex justify-between items-baseline mt-3">
@@ -234,7 +234,7 @@ const AdminPage = async () => {
                     </div>
 
                     <div className="card-ink p-5 bg-[#F0E3CE]">
-                        <p className="text-[10px] uppercase font-bold text-[#0D0D15]/50 tracking-wider font-display">
+                        <p className="text-[10px] uppercase font-bold text-ink/50 tracking-wider font-display">
                             Master Scribes
                         </p>
                         <div className="flex justify-between items-baseline mt-3">
@@ -246,7 +246,7 @@ const AdminPage = async () => {
                     </div>
 
                     <div className="card-ink p-5 bg-[#F0E3CE]">
-                        <p className="text-[10px] uppercase font-bold text-[#0D0D15]/50 tracking-wider font-display">
+                        <p className="text-[10px] uppercase font-bold text-ink/50 tracking-wider font-display">
                             Chronicles Acquired
                         </p>
                         <div className="flex justify-between items-baseline mt-3">
@@ -258,7 +258,7 @@ const AdminPage = async () => {
                     </div>
 
                     <div className="card-ink p-5 bg-[#F0E3CE]">
-                        <p className="text-[10px] uppercase font-bold text-[#0D0D15]/50 tracking-wider font-display">
+                        <p className="text-[10px] uppercase font-bold text-ink/50 tracking-wider font-display">
                             Treasury Balance
                         </p>
                         <div className="flex justify-between items-baseline mt-3">
@@ -276,7 +276,7 @@ const AdminPage = async () => {
 
                     {/* Bar Chart — Monthly Revenue */}
                     <div className="lg:col-span-8 card-ink p-6 bg-[#F0E3CE] space-y-4">
-                        <h4 className="font-display font-bold text-xs uppercase tracking-wider text-[#0D0D15]/70 border-b border-[#0D0D15]/10 pb-2">
+                        <h4 className="font-display font-bold text-xs uppercase tracking-wider text-ink/70 border-b border-[#0D0D15]/10 pb-2">
                             Monthly Treasures (Sumi Bar Ledger)
                         </h4>
                         <div className="w-full aspect-[16/9] min-h-[220px] max-h-[300px] relative">
@@ -286,7 +286,7 @@ const AdminPage = async () => {
 
                     {/* Donut Chart — Genre Breakdown */}
                     <div className="lg:col-span-4 card-ink p-6 bg-[#F0E3CE] flex flex-col justify-between space-y-4">
-                        <h4 className="font-display font-bold text-xs uppercase tracking-wider text-[#0D0D15]/70 border-b border-[#0D0D15]/10 pb-2">
+                        <h4 className="font-display font-bold text-xs uppercase tracking-wider text-ink/70 border-b border-[#0D0D15]/10 pb-2">
                             Scrolls by Genre (Hollow Fan)
                         </h4>
                         <DonutChart genres={genreData} />
