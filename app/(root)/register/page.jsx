@@ -1,6 +1,9 @@
 "use client";
 
 import { authClient } from "@/app/lib/auth-client";
+import { Button } from "@heroui/react";
+import { Icon } from "@iconify/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
@@ -135,58 +138,65 @@ export default function RegisterPage() {
         console.log("Account Created successfully:", { role });
     };
 
+    const handleGoogleSignIn = async () => {
+        const data = await authClient.signIn.social({
+            provider: "google",
+            role: 'reader'
+        });
+    }
+
     const handleVault = () => {
         setSubmitted(false)
         router.push('/login')
     }
 
     return (
-        <main className="min-h-[100dvh] flex items-center my-22 justify-center p-4 md:p-8 bg-[#F0E3CE]">
+        <main className="min-h-[100dvh] flex items-center my-22 justify-center p-4 md:p-8 bg-paper">
             {/* Main Container Frame */}
-            <div className="w-full max-w-[1280px] grid grid-cols-1 md:grid-cols-12 card-ink overflow-hidden min-h-[720px]">
+            <div className="w-full max-w-7xl grid grid-cols-1 md:grid-cols-12 card-ink overflow-hidden min-h-180">
 
                 {/* Left Panel: Graphic & Branding */}
                 { }
-                <div className="md:col-span-5 bg-[#2A4056] text-[#F0E3CE] border-b-3 md:border-b-0 md:border-r-3 border-[#0D0D15] p-8 flex flex-col justify-between relative overflow-hidden">
+                <div className="md:col-span-5 bg-wave text-paper border-b-3 md:border-b-0 md:border-r-3 border-ink p-8 flex flex-col justify-between relative overflow-hidden">
                     {/* Woodblock Texture Overlay */}
-                    <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay bg-[linear-gradient(rgba(13,13,21,0.15)_1px,_transparent_1px)] bg-[size:100%_4px]" />
+                    <div className="absolute inset-0 opacity-10 pointer-events-none mix-blend-overlay bg-[linear-gradient(rgba(13,13,21,0.15)_1px,transparent_1px)] bg-size-[100%_4px]" />
 
                     <div className="relative z-10 space-y-12">
                         <div className="flex items-center gap-2">
-                            <span className="text-[#E85D35]"><WaveCrestIcon /></span>
+                            <span className="text-sun"><WaveCrestIcon /></span>
                             <span className="font-display font-bold text-xl tracking-wider">FABLE</span>
                         </div>
 
                         <div className="space-y-6">
-                            <h1 className="font-display font-bold text-3xl lg:text-4xl leading-tight text-[#F0E3CE]">
+                            <h1 className="font-display font-bold text-3xl lg:text-4xl leading-tight text-paper">
                                 CHOOSE YOUR <br />
-                                <span className="text-[#E85D35]">PARCHMENT</span> PATH.
+                                <span className="text-sun">PARCHMENT</span> PATH.
                             </h1>
-                            <p className="font-display font-normal text-sm leading-relaxed text-[#F0E3CE]/80 max-w-[34ch]">
+                            <p className="font-display font-normal text-sm leading-relaxed text-paper/80 max-w-[34ch]">
                                 Every account opens a new chapter in our digital floating world. Align your journey with tradition.
                             </p>
                         </div>
 
                         {/* Path description based on state */}
                         { }
-                        <div className="space-y-4 pt-6 border-t border-[#F0E3CE]/20">
+                        <div className="space-y-4 pt-6 border-t border-paper/20">
                             {role === "reader" ? (
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-3">
-                                        <span className="text-[#CC7722]"><BookOpenIcon /></span>
+                                        <span className="text-ochre"><BookOpenIcon /></span>
                                         <h3 className="font-display font-bold text-base m-0">READER&apos;S COVENANT</h3>
                                     </div>
-                                    <p className="font-display font-normal text-xs text-[#F0E3CE]/70 leading-relaxed">
+                                    <p className="font-display font-normal text-xs text-paper/70 leading-relaxed">
                                         Browse original ebooks, assemble historical scrolls, and support visual artists.
                                     </p>
                                 </div>
                             ) : (
                                 <div className="space-y-3">
                                     <div className="flex items-center gap-3">
-                                        <span className="text-[#E85D35]"><EditIcon /></span>
+                                        <span className="text-sun"><EditIcon /></span>
                                         <h3 className="font-display font-bold text-base m-0">SCRIBE&apos;S MANDATE</h3>
                                     </div>
-                                    <p className="font-display font-normal text-xs text-[#F0E3CE]/70 leading-relaxed">
+                                    <p className="font-display font-normal text-xs text-paper/70 leading-relaxed">
                                         Publish original manuscripts to collectors. Requires a one-time 1,000 Yen verification to secure authenticity.
                                     </p>
                                 </div>
@@ -194,9 +204,9 @@ export default function RegisterPage() {
                         </div>
                     </div>
 
-                    <div className="relative z-10 pt-6 flex items-center gap-3 border-t-1.5 border-[#F0E3CE]/10">
-                        <span className="text-[#CC7722]"><TeahouseIcon /></span>
-                        <span className="font-display text-[10px] tracking-widest text-[#F0E3CE]/60 uppercase">
+                    <div className="relative z-10 pt-6 flex items-center gap-3 border-t-1.5 border-paper/10">
+                        <span className="text-ochre"><TeahouseIcon /></span>
+                        <span className="font-display text-[10px] tracking-widest text-paper/60 uppercase">
                             Edo Epoch UI V3
                         </span>
                     </div>
@@ -204,16 +214,16 @@ export default function RegisterPage() {
 
                 {/* Right Panel: Form */}
                 { }
-                <div className="md:col-span-7 bg-[#F0E3CE] p-8 lg:p-12 flex flex-col justify-center">
+                <div className="md:col-span-7 bg-paper p-8 lg:p-12 flex flex-col justify-center">
                     <div className="max-w-[480px] w-full mx-auto space-y-8">
 
                         {submitted ? (
                             <div className="text-center py-12 space-y-4">
-                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border-3 border-[#0D0D15] bg-[#E85D35] text-[#F0E3CE] shadow-ink-sm mx-auto">
+                                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border-3 border-ink bg-sun text-paper shadow-ink-sm mx-auto">
                                     <BookOpenIcon />
                                 </div>
-                                <h2 className="font-display font-bold text-2xl text-[#0D0D15]">SIGNATURE FILED</h2>
-                                <p className="font-display text-sm text-[#0D0D15]/85">Your identity scroll is verified. Prepare your inkwells.</p>
+                                <h2 className="font-display font-bold text-2xl text-ink">SIGNATURE FILED</h2>
+                                <p className="font-display text-sm text-ink/85">Your identity scroll is verified. Prepare your inkwells.</p>
                                 <div className="pt-4">
                                     <button onClick={handleVault} className="btn-primary shadow-ink-sm">Proceed to Vault</button>
                                 </div>
@@ -221,8 +231,8 @@ export default function RegisterPage() {
                         ) : (
                             <>
                                 <div>
-                                    <h2 className="section-heading text-2xl font-bold text-[#0D0D15]">CREATE PLATFORM ENTRY</h2>
-                                    <p className="font-display text-sm mt-4 text-[#0D0D15]/70">Affix your credentials to receive an authentication certificate.</p>
+                                    <h2 className="section-heading text-2xl font-bold text-ink">CREATE PLATFORM ENTRY</h2>
+                                    <p className="font-display text-sm mt-4 text-ink/70">Affix your credentials to receive an authentication certificate.</p>
                                 </div>
 
                                 {/* STYLED FORM STRUCTURE WITHOUT EXTERNAL HEROUI PACKAGE TO PREVENT COMPILER ERRORS */}
@@ -233,7 +243,7 @@ export default function RegisterPage() {
                                         <button
                                             type="button"
                                             onClick={() => setRole("reader")}
-                                            className={`py-3 px-4 rounded-lg font-display text-xs font-bold transition-all border-ink-thin flex items-center justify-center gap-2 cursor-pointer ${role === "reader" ? "bg-[#E85D35] text-[#F0E3CE] border-[#0D0D15] shadow-ink-sm -translate-y-0.5" : "bg-transparent text-[#0D0D15]"
+                                            className={`py-3 px-4 rounded-lg font-display text-xs font-bold transition-all border-ink-thin flex items-center justify-center gap-2 cursor-pointer ${role === "reader" ? "bg-sun text-paper border-ink shadow-ink-sm -translate-y-0.5" : "bg-transparent text-ink"
                                                 }`}
                                         >
                                             <BookOpenIcon /> READER
@@ -241,7 +251,7 @@ export default function RegisterPage() {
                                         <button
                                             type="button"
                                             onClick={() => setRole("writer")}
-                                            className={`py-3 px-4 rounded-lg font-display text-xs font-bold transition-all border-ink-thin flex items-center justify-center gap-2 cursor-pointer ${role === "writer" ? "bg-[#E85D35] text-[#F0E3CE] border-[#0D0D15] shadow-ink-sm -translate-y-0.5" : "bg-transparent text-[#0D0D15]"
+                                            className={`py-3 px-4 rounded-lg font-display text-xs font-bold transition-all border-ink-thin flex items-center justify-center gap-2 cursor-pointer ${role === "writer" ? "bg-sun text-paper border-ink shadow-ink-sm -translate-y-0.5" : "bg-transparent text-ink"
                                                 }`}
                                         >
                                             <EditIcon /> WRITER
@@ -252,16 +262,16 @@ export default function RegisterPage() {
                                     <div className="space-y-4 w-full">
                                         {/* Username Field */}
                                         <div className="flex flex-col gap-1 w-full">
-                                            <label className="font-display text-xs font-bold text-[#0D0D15]">SCRIBE OR COLLECTOR NAME</label>
+                                            <label className="font-display text-xs font-bold text-ink">SCRIBE OR COLLECTOR NAME</label>
                                             <div className="relative flex items-center">
-                                                <span className="absolute left-4 text-[#0D0D15]/40 z-10 pointer-events-none">
+                                                <span className="absolute left-4 text-ink/40 z-10 pointer-events-none">
                                                     <UserIcon />
                                                 </span>
                                                 <input
                                                     type="text"
                                                     name="username"
                                                     placeholder="e.g. Master Basho"
-                                                    className="w-full pl-10 pr-4 py-2.5 bg-[#F0E3CE] font-display text-sm border-ink-thin rounded-lg focus:outline-none focus:border-[#0D0D15] transition-all"
+                                                    className="w-full pl-10 pr-4 py-2.5 bg-paper font-display text-sm border-ink-thin rounded-lg focus:outline-none focus:border-ink transition-all"
                                                 />
                                             </div>
                                             {errors.username && <p className="text-xs text-red-600 font-bold mt-1">{errors.username}</p>}
@@ -269,16 +279,16 @@ export default function RegisterPage() {
 
                                         {/* Email Field */}
                                         <div className="flex flex-col gap-1 w-full">
-                                            <label className="font-display text-xs font-bold text-[#0D0D15]">DIGITAL PARCHMENT (EMAIL)</label>
+                                            <label className="font-display text-xs font-bold text-ink">DIGITAL PARCHMENT (EMAIL)</label>
                                             <div className="relative flex items-center">
-                                                <span className="absolute left-4 text-[#0D0D15]/40 z-10 pointer-events-none">
+                                                <span className="absolute left-4 text-ink/40 z-10 pointer-events-none">
                                                     <MailIcon />
                                                 </span>
                                                 <input
                                                     type="email"
                                                     name="email"
                                                     placeholder="basho@fable-revival.jp"
-                                                    className="w-full pl-10 pr-4 py-2.5 bg-[#F0E3CE] font-display text-sm border-ink-thin rounded-lg focus:outline-none focus:border-[#0D0D15] transition-all"
+                                                    className="w-full pl-10 pr-4 py-2.5 bg-paper font-display text-sm border-ink-thin rounded-lg focus:outline-none focus:border-ink transition-all"
                                                 />
                                             </div>
                                             {errors.email && <p className="text-xs text-red-600 font-bold mt-1">{errors.email}</p>}
@@ -286,21 +296,21 @@ export default function RegisterPage() {
 
                                         {/* Password Field */}
                                         <div className="flex flex-col gap-1 w-full">
-                                            <label className="font-display text-xs font-bold text-[#0D0D15]">SECURITY INK SEAL (PASSWORD)</label>
+                                            <label className="font-display text-xs font-bold text-ink">SECURITY INK SEAL (PASSWORD)</label>
                                             <div className="relative flex items-center">
-                                                <span className="absolute left-4 text-[#0D0D15]/40 z-10 pointer-events-none">
+                                                <span className="absolute left-4 text-ink/40 z-10 pointer-events-none">
                                                     <LockIcon />
                                                 </span>
                                                 <input
                                                     type={passwordVisible ? "text" : "password"}
                                                     name="password"
                                                     placeholder="••••••••••••"
-                                                    className="w-full pl-10 pr-10 py-2.5 bg-[#F0E3CE] font-display text-sm border-ink-thin rounded-lg focus:outline-none focus:border-[#0D0D15] transition-all"
+                                                    className="w-full pl-10 pr-10 py-2.5 bg-paper font-display text-sm border-ink-thin rounded-lg focus:outline-none focus:border-ink transition-all"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={togglePasswordVisibility}
-                                                    className="absolute right-4 text-[#0D0D15]/50 hover:text-[#0D0D15] transition-colors cursor-pointer focus:outline-none"
+                                                    className="absolute right-4 text-ink/50 hover:text-ink transition-colors cursor-pointer focus:outline-none"
                                                 >
                                                     {passwordVisible ? <EyeOffIcon /> : <EyeIcon />}
                                                 </button>
@@ -316,9 +326,9 @@ export default function RegisterPage() {
                                             <input
                                                 type="checkbox"
                                                 name="agreement"
-                                                className="w-4 h-4 border-2 border-[#0D0D15] checked:bg-[#E85D35] accent-[#E85D35] cursor-pointer"
+                                                className="w-4 h-4 border-2 border-ink checked:bg-sun accent-[#E85D35] cursor-pointer"
                                             />
-                                            <span className="font-display text-[11px] font-bold text-[#0D0D15]/80 uppercase">
+                                            <span className="font-display text-[11px] font-bold text-ink/80 uppercase">
                                                 I bind my signature to the terms
                                             </span>
                                         </label>
@@ -327,7 +337,7 @@ export default function RegisterPage() {
 
                                     {/* Context-aware Scribe Mandate Warning */}
                                     {role === "writer" && (
-                                        <div className="p-3 bg-[#CC7722]/10 border-l-4 border-[#CC7722] font-display text-[11px] text-[#0D0D15] rounded-r-md">
+                                        <div className="p-3 bg-[#CC7722]/10 border-l-4 border-[#CC7722] font-display text-[11px] text-ink rounded-r-md">
                                             <strong>MANDATE:</strong> A one-time verification fee of 1,000 Yen is required after registration.
                                         </div>
                                     )}
@@ -338,11 +348,22 @@ export default function RegisterPage() {
                                         <ArrowRightIcon className="transition-transform group-hover:translate-x-1" />
                                     </button>
                                 </form>
+                                <div className="flex items-center gap-5">
+                                    <div className="w-full border-t border-sun border-dashed"></div>
+                                    <span className="text-wave tracking-widest">
+                                        OR
+                                    </span>
+                                    <div className="w-full border-t border-sun border-dashed"></div>
+                                </div>
+                                <button onClick={handleGoogleSignIn} className="w-full btn-ghost justify-center">
+                                    <Icon icon="devicon:google" />
+                                    Sign up with Google
+                                </button>
 
-                                <div className="pt-4 border-t border-[#0D0D15]/10 text-center">
-                                    <p className="font-display text-xs text-[#0D0D15]/60">
+                                <div className="pt-4 border-t border-ink/10 text-center">
+                                    <p className="font-display text-xs text-ink/60">
                                         ALREADY REGISTERED?{" "}
-                                        <a href="#login" className="text-[#E85D35] font-bold hover:underline ml-1">LOG IN HERE</a>
+                                        <Link href="/login" className="text-sun font-bold hover:underline ml-1">LOG IN HERE</Link>
                                     </p>
                                 </div>
                             </>

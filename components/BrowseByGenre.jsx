@@ -8,6 +8,7 @@ import {
   BookMarked,
   Compass,
 } from "lucide-react";
+import Link from "next/link";
 
 const genres = [
   { name: "Fantasy", icon: Swords, count: 420 },
@@ -36,9 +37,9 @@ export default function BrowseByGenre() {
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {genres.map((genre) => (
-            <a
+            <Link
               key={genre.name}
-              href={`/genres/${genre.name.toLowerCase().replace(/\s+/g, "-")}`}
+              href={`/books?genre=${genre.name}`}
               className="card-ink p-5 flex flex-col items-center text-center gap-3 group cursor-pointer hover:bg-sun/10"
             >
               <div className="w-12 h-12 rounded-lg bg-wave/10 border-2 border-ink flex items-center justify-center transition-colors duration-200 group-hover:bg-sun/20">
@@ -46,11 +47,8 @@ export default function BrowseByGenre() {
               </div>
               <div>
                 <div className="text-sm font-bold">{genre.name}</div>
-                <div className="text-xs text-ink/50 mt-0.5">
-                  {genre.count} books
-                </div>
               </div>
-            </a>
+            </Link>
           ))}
         </div>
       </div>

@@ -198,7 +198,7 @@ const TransactionsPage = ({ transactions = [] }) => {
                     </button>
                 </div>
             ) : (
-                <div className="card-ink bg-[#F0E3CE] overflow-hidden">
+                <div className="card-ink bg-[#F0E3CE] overflow-y-scroll max-h-screen">
                     {/* Table header */}
                     <div className="hidden md:grid grid-cols-[1fr_1.6fr_1fr_0.8fr_0.8fr_0.9fr] gap-4 px-6 py-3 border-b-2 border-[#0D0D15] bg-[#0D0D15]">
                         {["Transaction ID", "Session", "Email", "Genre", "Type", "Amount"].map(h => (
@@ -269,8 +269,8 @@ const TransactionsPage = ({ transactions = [] }) => {
                                             Type:
                                         </span>
                                         <span className={`inline-flex text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border font-display ${t.type === "purchase"
-                                                ? "bg-[#2A4056]/10 text-[#2A4056] border-[#2A4056]"
-                                                : "bg-[#CC7722]/10 text-[#CC7722] border-[#CC7722]"
+                                            ? "bg-[#2A4056]/10 text-[#2A4056] border-[#2A4056]"
+                                            : "bg-[#CC7722]/10 text-[#CC7722] border-[#CC7722]"
                                             }`}>
                                             {t.type || "—"}
                                         </span>

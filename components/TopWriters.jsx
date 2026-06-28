@@ -45,12 +45,6 @@ export default async function TopWriters() {
             </article>
           ))}
         </div>
-
-        <div className="mt-10 text-center">
-          <a href="/writers" className="btn-ghost text-sm">
-            View All Writers
-          </a>
-        </div>
       </div>
     </section>
   );

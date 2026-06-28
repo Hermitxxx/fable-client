@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Star, StarIcon } from "lucide-react";
 import { getFeaturedBooks } from "@/app/lib/api/books";
+import Link from "next/link";
 
 
 export default async function FeaturedEbooks() {
@@ -48,9 +49,9 @@ export default async function FeaturedEbooks() {
         </div>
 
         <div className="mt-10 text-center">
-          <a href="/browse" className="btn-ghost text-sm">
+          <Link href="/books" className="btn-ghost text-sm">
             View All Ebooks
-          </a>
+          </Link>
         </div>
       </div>
     </section>

@@ -1,4 +1,5 @@
 import { BookOpen, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default function HeroSection() {
   return (
@@ -23,13 +24,13 @@ export default function HeroSection() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <a href="#featured" className="btn-primary text-base">
+              <Link href="/books" className="btn-primary text-base">
                 Start Reading
                 <ArrowRight className="w-4 h-4" />
-              </a>
-              <a href="#how-it-works" className="btn-ghost text-base">
+              </Link>
+              <Link href="/register" className="btn-ghost text-base">
                 Become a Writer
-              </a>
+              </Link>
             </div>
           </div>
 

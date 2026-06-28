@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default function CTASection() {
   return (
@@ -27,19 +28,19 @@ export default function CTASection() {
             No subscriptions, no algorithms — just great books.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <a
-              href="/browse"
+            <Link
+              href="/books"
               className="btn-primary text-base bg-sun text-ink"
             >
               Browse Library
               <ArrowRight className="w-4 h-4" />
-            </a>
-            <a
-              href="/signup"
+            </Link>
+            <Link
+              href="/register"
               className="btn-ghost text-base border-paper/40 text-paper hover:bg-paper/10"
             >
               Join as Writer
-            </a>
+            </Link>
           </div>
         </div>
       </div>

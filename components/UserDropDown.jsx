@@ -1,6 +1,7 @@
 "use client";
 
 import { authClient } from "@/app/lib/auth-client";
+import { BookSearchIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect, useRef } from "react";
@@ -45,8 +46,6 @@ export default function UserDropDown({ user }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    const { name, email, role } = user
-
     useEffect(() => {
         function handleClickOutside(event) {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -79,7 +78,7 @@ export default function UserDropDown({ user }) {
             >
                 {/* Red stamp-style circle containing initial */}
                 <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-ink bg-sun flex items-center justify-center font-display font-extrabold text-sm text-paper shadow-sm select-none shrink-0">
-                    <Image src={user?.image || 'https://robohash.org/eumquaecum.png?size=250x250&set=set1'} width={100} height={100} alt={user?.name}></Image>
+                    <Image src={user?.image || 'https://robohash.org/eumquaecum.png?size=250x250&set=set1'} width={100} height={100} alt={`User`}></Image>
                 </div>
 
                 {/* Hidden on small screens, matches the elegant layout spacing */}
@@ -103,17 +102,17 @@ export default function UserDropDown({ user }) {
                             Active Scribe
                         </p>
                         <p className="font-display text-sm font-bold text-ink truncate">
-                            {user.name}
+                            {user?.name}
                         </p>
                         <p className="font-mono text-[10px] text-ink/60 truncate mt-0.5">
-                            {user.email}
+                            {user?.email}
                         </p>
                     </div>
 
                     { }
                     <div className="py-1">
                         <Link
-                            href={`/dashboard/${user.role}/profile`}
+                            href={`/dashboard/${user?.role}/profile`}
                             className="flex items-center gap-3 px-4 py-3 text-xs font-display font-bold uppercase tracking-wider text-ink hover:bg-sun/10 transition-colors cursor-pointer"
                             role="menuitem"
                             onClick={() => setIsOpen(false)}
@@ -123,7 +122,17 @@ export default function UserDropDown({ user }) {
                         </Link>
 
                         <Link
-                            href={`/dashboard/${user.role}`}
+                            href={`/books`}
+                            className="flex items-center gap-3 px-4 py-3 text-xs font-display font-bold uppercase tracking-wider text-ink hover:bg-wave/10 transition-colors cursor-pointer"
+                            role="menuitem"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            <BookSearchIcon size={18} className="text-wave" />
+                            <span>Browse Scribes</span>
+                        </Link>
+
+                        <Link
+                            href={`/dashboard/${user?.role}`}
                             className="flex items-center gap-3 px-4 py-3 text-xs font-display font-bold uppercase tracking-wider text-ink hover:bg-wave/10 transition-colors cursor-pointer"
                             role="menuitem"
                             onClick={() => setIsOpen(false)}

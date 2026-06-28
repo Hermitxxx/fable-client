@@ -11,7 +11,8 @@ import {
     LayoutGrid,
     User2Icon,
     BookmarkIcon,
-    HistoryIcon
+    HistoryIcon,
+    BookOpen
 } from 'lucide-react';
 import { Button, Drawer, Avatar } from "@heroui/react";
 import Link from "next/link";
@@ -191,7 +192,7 @@ export default function Sidebar() {
             <div>
                 <span className="font-display font-extrabold text-2xl tracking-widest block text-ink">FABLE</span>
                 <span className="text-[9px] uppercase tracking-wider font-semibold text-ink/60 block font-display">
-                    Imperial Vault Admin
+                    Imperial Vault
                 </span>
             </div>
         </div>
@@ -199,7 +200,7 @@ export default function Sidebar() {
 
     const desktopSidebar = (
         <aside
-            className="hidden bg-paper min-w-72 shrink-0 flex-col border-r-ink min-h-screen top-0 p-6 md:flex"
+            className="hidden bg-paper min-w-72 shrink-0 flex-col border-r-ink min-h-screen top-0 p-6 lg:flex"
             aria-label="Fable Dashboard Sidebar"
         >
             {/* Branding Segment */}
@@ -237,46 +238,52 @@ export default function Sidebar() {
         <>
             {desktopSidebar}
 
-            {/* Mobile trigger */}
-            {/* <Button
-                className="sticky left-3 top-3 z-50 flex size-10 items-center justify-center rounded-xl border border-white/10 bg-zinc-900/80 backdrop-blur-xl md:hidden"
-                variant="flat"
-                isIconOnly
-                onPress={() => setMobileOpen(!mobileOpen)}
-                aria-label="Open navigation menu"
-            >
-                <Menu className="size-5 text-zinc-400" />
-            </Button> */}
-
-            {/* Mobile drawer */}
+            {/* Mobile trigger + Drawer — trigger is now a child of Drawer, same pattern as your working Modal usage */}
             <Drawer isOpen={mobileOpen} onOpenChange={setMobileOpen}>
-                <Drawer.Backdrop />
-                <Drawer.Content placement="left" className="bg-zinc-950">
-                    <Drawer.Dialog>
-                        <Drawer.CloseTrigger />
-                        <Drawer.Header>
-                            <Drawer.Heading>
-                                <span className="text-lg font-bold text-white">
-                                    Fable
-                                </span>
-                            </Drawer.Heading>
-                        </Drawer.Header>
-                        <Drawer.Body>
-                            {/* {userInfo} */}
-                            <div className="mt-4">{navContent}</div>
-                            <div className="mt-6">{publicNav}</div>
-                            <div className="mt-4 border-t border-white/10 pt-4">
-                                <button
-                                    onClick={handleSignOut}
-                                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm text-zinc-500 transition-colors hover:bg-zinc-800/50"
-                                >
-                                    <LogOut className="size-5" />
-                                    Sign Out
-                                </button>
-                            </div>
-                        </Drawer.Body>
-                    </Drawer.Dialog>
-                </Drawer.Content>
+                <div className="border-b-2 flex border-ink p-4 lg:hidden mb-4 items-center justify-between">
+                    <Link href="/" className="flex items-center gap-2">
+                        <BookOpen className="w-7 h-7 text-sun" strokeWidth={2.5} />
+                        <span className="text-2xl font-bold tracking-tight">Fable</span>
+                    </Link>
+
+                    <Button
+                        className="sticky left-3 top-3 z-50 flex size-10 items-center justify-center rounded-xl border border-white/10 bg-sun backdrop-blur-xl lg:hidden"
+                        variant="flat"
+                        isIconOnly
+                        aria-label="Open navigation menu"
+                    >
+                        <Menu className="size-5 text-paper" />
+                    </Button>
+                </div>
+                <Drawer.Backdrop>
+                    <Drawer.Content placement="left" className="bg-zinc-950">
+                        <Drawer.Dialog className="bg-paper">
+                            <Drawer.CloseTrigger slot='close' className="bg-sun text-paper" />
+                            <Drawer.Header>
+                                <Drawer.Heading>
+                                    <span className="text-lg font-bold text-sun">
+                                        Fable
+                                    </span>
+                                </Drawer.Heading>
+                            </Drawer.Header>
+                            <Drawer.Body className="bg-paper">
+                                {/* {userInfo} */}
+                                <div className="mt-4">{navContent}</div>
+                                <div className="mt-6">{publicNav}</div>
+                                <div className="mt-4 border-t border-white/10 pt-4">
+                                    <button
+                                        type="button"
+                                        onClick={handleSignOut}
+                                        className="btn-ghost text-sm py-2 px-4 text-center"
+                                    >
+                                        <CustomLogOutIcon />
+                                        <span>Sign Out</span>
+                                    </button>
+                                </div>
+                            </Drawer.Body>
+                        </Drawer.Dialog>
+                    </Drawer.Content>
+                </Drawer.Backdrop>
             </Drawer>
         </>
     );

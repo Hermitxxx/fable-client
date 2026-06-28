@@ -9,7 +9,6 @@ import LoadingSpinner from "./LoadingSpinner";
 
 const navLinks = [
   { label: "Browse", href: "/books" },
-  { label: "Writers", href: "/writers" },
   { label: "About", href: "/about" },
 ];
 
@@ -46,30 +45,50 @@ export default function Navbar() {
                 {link.label}
               </Link>
             ))}
+
+            {
+              user &&
+              <Link
+                href={`/dashboard/${user?.role}`}
+                className="text-sm font-medium hover:text-sun transition-colors duration-200"
+              >
+                Dashboard
+              </Link>
+            }
           </div>
 
-          {
-            user ? <UserDropDown user={user}></UserDropDown> :
-              session && isPending ? <LoadingSpinner></LoadingSpinner> :
-                <>
-                  <div className="hidden md:flex items-center gap-3">
-                    <Link href="/login" className="btn-ghost text-sm py-2 px-4">
-                      Sign In
-                    </Link>
-                    <Link href="/register" className="btn-primary text-sm py-2 px-4">
-                      Get Started
-                    </Link>
-                  </div>
-                </>
-          }
+          <div className="hidden md:flex">
+            {
+              user ? <UserDropDown user={user}></UserDropDown> :
+                session && isPending ? <LoadingSpinner></LoadingSpinner> :
+                  <>
+                    <div className="hidden md:flex items-center gap-3">
+                      <Link href="/login" className="btn-ghost text-sm py-2 px-4">
+                        Sign In
+                      </Link>
+                      <Link href="/register" className="btn-primary text-sm py-2 px-4">
+                        Get Started
+                      </Link>
+                    </div>
+                  </>
+            }
+          </div>
 
-          <button
-            className="md:hidden p-2"
-            onClick={() => setIsOpen(!isOpen)}
-            aria-label="Toggle menu"
-          >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+          <div className="md:hidden">
+            {
+              user ? <UserDropDown user={user}></UserDropDown> :
+                session && isPending ? <LoadingSpinner></LoadingSpinner> :
+                  <>
+                    <button
+                      className=" p-2"
+                      onClick={() => setIsOpen(!isOpen)}
+                      aria-label="Toggle menu"
+                    >
+                      {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                    </button>
+                  </>
+            }
+          </div>
         </div>
       </div>
 

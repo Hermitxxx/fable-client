@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Form, TextField, Label, Input, FieldError, Checkbox } from "@heroui/react";
+import { Form, TextField, Label, Input, FieldError, Checkbox, Button } from "@heroui/react";
 import { GiWaveCrest, GiOldBricks } from "react-icons/gi";
 import { RiGalleryLine, RiCompassDiscoverLine } from "react-icons/ri";
 import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
 import { authClient } from "@/app/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { alertToast } from "@/components/AlertToast";
+import { Icon } from "@iconify/react";
+import Link from "next/link";
 
 export default function LoginPage() {
     const [passwordVisible, setPasswordVisible] = useState(false);
@@ -41,6 +43,12 @@ export default function LoginPage() {
             alertToast(err?.message || "Something went wrong while signing in.");
         }
     };
+
+    const handleGoogleSignIn = async () => {
+        const data = await authClient.signIn.social({
+            provider: "google",
+        });
+    }
 
     return (
         <main className="min-h-[100dvh] flex items-center justify-center p-4 md:p-8 mt-14">
@@ -195,13 +203,25 @@ export default function LoginPage() {
                             </button>
                         </Form>
 
+                        <div className="flex items-center gap-5">
+                            <div className="w-full border-t border-sun border-dashed"></div>
+                            <span className="text-wave tracking-widest">
+                                OR
+                            </span>
+                            <div className="w-full border-t border-sun border-dashed"></div>
+                        </div>
+                        <button onClick={handleGoogleSignIn} className="w-full btn-ghost justify-center">
+                            <Icon icon="devicon:google" />
+                            Sign in with Google
+                        </button>
+
                         {/* Alternating Selection Anchor */}
                         <div className="pt-6 border-t border-ink/10 text-center">
                             <p className="font-display text-sm text-ink/60">
                                 NEW TO THE COVENANT?{" "}
-                                <a href="#register" className="text-sun font-bold hover:underline ml-1">
+                                <Link href="/register" className="text-sun font-bold hover:underline ml-1">
                                     GENERATE WRITER OR READER PASSPORT
-                                </a>
+                                </Link>
                             </p>
                         </div>
 

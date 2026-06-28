@@ -7,7 +7,7 @@ import React from 'react';
 const DashboardLayout = ({ children }) => {
     return (
         <>
-            <div className="flex min-h-screen">
+            <div className="flex flex-col lg:flex-row min-h-screen">
                 <Sidebar></Sidebar>
                 <div className='flex-1 overflow-y-scroll max-h-screen'>
                     {/* <Navbar></Navbar> */}

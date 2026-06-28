@@ -83,7 +83,7 @@ export default function BrowseBooksPage({
   const ALL_WRITERS = ["All Scribes", ...writersName]
 
   const genres = books.map(book => book.genre);
-  const ALL_GENRES = ["All Genres", ...genres]
+  const ALL_GENRES = ["All Genres", ... new Set(genres)]
   const router = useRouter();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
@@ -222,9 +222,9 @@ export default function BrowseBooksPage({
                       key={i}
                       onClick={() => handleGenreSelect(genre)}
                       disabled={isPending}
-                      className={`text-[10px] px-2 py-2 border-2 rounded-lg transition-all cursor-pointer text-center font-bold tracking-wider leading-tight min-h-[40px] disabled:opacity-50 ${isActive
-                        ? "bg-[#E85D35] text-[#F0E3CE] border-[#0D0D15] shadow-[3px_3px_0px_#2A4056] -translate-y-0.5"
-                        : "bg-transparent text-[#0D0D15] border-[#0D0D15]/20 hover:border-[#0D0D15]"
+                      className={`text-[10px] px-2 py-2 border-2 rounded-lg transition-all cursor-pointer text-center font-bold tracking-wider leading-tight min-h-10 disabled:opacity-50 ${isActive
+                        ? "bg-sun text-paper border-ink shadow-[3px_3px_0px_#2A4056] -translate-y-0.5"
+                        : "bg-transparent text-ink border-ink/20 hover:border-ink"
                         }`}
                     >
                       {genre.toUpperCase()}
@@ -248,8 +248,8 @@ export default function BrowseBooksPage({
                       onClick={() => handleWriterSelect(writer)}
                       disabled={isPending}
                       className={`text-[10px] px-2 py-2 border-2 rounded-lg transition-all cursor-pointer text-center font-bold tracking-wider leading-tight min-h-[40px] disabled:opacity-50 ${isActive
-                        ? "bg-[#2A4056] text-[#F0E3CE] border-[#0D0D15] shadow-[3px_3px_0px_#E85D35] -translate-y-0.5"
-                        : "bg-transparent text-[#0D0D15] border-[#0D0D15]/20 hover:border-[#0D0D15]"
+                        ? "bg-[#2A4056] text-paper border-ink shadow-[3px_3px_0px_#E85D35] -translate-y-0.5"
+                        : "bg-transparent text-ink border-ink/20 hover:border-ink"
                         }`}
                     >
                       {writer.toUpperCase()}
@@ -277,7 +277,7 @@ export default function BrowseBooksPage({
         <div className="lg:col-span-8 space-y-6">
 
           {/* Header row */}
-          <div className="flex flex-wrap justify-between items-center border-b-2 border-[#0D0D15]/10 pb-4 gap-3">
+          <div className="flex flex-wrap justify-between items-center border-b-2 border-ink/10 pb-4 gap-3">
             <h2 className="section-heading text-xl font-extrabold tracking-wider">
               Available Chronicles
             </h2>
@@ -287,7 +287,7 @@ export default function BrowseBooksPage({
                   Consulting scrolls…
                 </span>
               )}
-              <span className="text-xs font-bold bg-[#2A4056] text-[#F0E3CE] px-3 py-1.5 rounded-lg border-2 border-[#0D0D15] font-display">
+              <span className="text-xs font-bold bg-[#2A4056] text-paper px-3 py-1.5 rounded-lg border-2 border-ink font-display">
                 {total} {total === 1 ? "SCROLL" : "SCROLLS"} FOUND
               </span>
             </div>
@@ -297,21 +297,21 @@ export default function BrowseBooksPage({
           {hasActiveFilters && (
             <div className="flex flex-wrap gap-2">
               {currentSearch && (
-                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border-2 border-[#E85D35] bg-[#E85D35]/10 text-[#E85D35] font-display">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border-2 border-[#E85D35] bg-sun/10 text-[#E85D35] font-display">
                   &ldquo;{currentSearch}&rdquo;
-                  <button onClick={() => { setSearchInput(""); pushParams({ search: "", page: "1" }); }} className="hover:text-[#0D0D15] cursor-pointer"><CrossIcon /></button>
+                  <button onClick={() => { setSearchInput(""); pushParams({ search: "", page: "1" }); }} className="hover:text-ink cursor-pointer"><CrossIcon /></button>
                 </span>
               )}
               {currentGenre && currentGenre !== "All Genres" && (
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border-2 border-[#2A4056] bg-[#2A4056]/10 text-[#2A4056] font-display">
                   {currentGenre}
-                  <button onClick={() => handleGenreSelect("All Genres")} className="hover:text-[#0D0D15] cursor-pointer"><CrossIcon /></button>
+                  <button onClick={() => handleGenreSelect("All Genres")} className="hover:text-ink cursor-pointer"><CrossIcon /></button>
                 </span>
               )}
               {currentWriter && currentWriter !== "All Scribes" && (
                 <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border-2 border-[#CC7722] bg-[#CC7722]/10 text-[#CC7722] font-display">
                   {currentWriter}
-                  <button onClick={() => handleWriterSelect("All Scribes")} className="hover:text-[#0D0D15] cursor-pointer"><CrossIcon /></button>
+                  <button onClick={() => handleWriterSelect("All Scribes")} className="hover:text-ink cursor-pointer"><CrossIcon /></button>
                 </span>
               )}
             </div>
@@ -320,7 +320,7 @@ export default function BrowseBooksPage({
           {/* Grid or empty state */}
           {books.length === 0 ? (
             <div className="card-ink text-center py-20 px-8 bg-paper flex flex-col items-center gap-5">
-              <div className="w-16 h-16 rounded-full border-3 border-[#0D0D15] bg-[#E85D35] text-[#F0E3CE] flex items-center justify-center shadow-ink-sm">
+              <div className="w-16 h-16 rounded-full border-3 border-ink bg-sun text-paper flex items-center justify-center shadow-ink-sm">
                 <BookOpenIcon />
               </div>
               <div className="space-y-2">
@@ -343,7 +343,7 @@ export default function BrowseBooksPage({
 
           {/* ── Pagination ── */}
           {totalPages > 1 && (
-            <div className="pt-4 border-t-2 border-[#0D0D15]/10">
+            <div className="pt-4 border-t-2 border-ink/10">
               <Pagination className="justify-center">
                 <Pagination.Content className="gap-1.5 flex-wrap justify-center">
 
@@ -355,8 +355,8 @@ export default function BrowseBooksPage({
                       className={`
                         inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border-2 font-display font-bold text-[10px] uppercase tracking-widest transition-all
                         ${currentPage === 1 || isPending
-                          ? "border-[#0D0D15]/15 text-[#0D0D15]/30 cursor-not-allowed bg-transparent"
-                          : "border-[#0D0D15] text-[#0D0D15] bg-[#F0E3CE] hover:bg-[#0D0D15] hover:text-[#F0E3CE] shadow-[3px_3px_0px_#2A4056] hover:-translate-y-0.5 cursor-pointer"
+                          ? "border-ink/15 text-ink/30 cursor-not-allowed bg-transparent"
+                          : "border-ink text-ink bg-[#F0E3CE] hover:bg-[#0D0D15] hover:text-paper shadow-[3px_3px_0px_#2A4056] hover:-translate-y-0.5 cursor-pointer"
                         }
                       `}
                     >
@@ -371,7 +371,7 @@ export default function BrowseBooksPage({
                   {paginationRange.map((item, idx) =>
                     item === "..." ? (
                       <Pagination.Item key={`ellipsis-${idx}`}>
-                        <Pagination.Ellipsis className="w-9 h-9 flex items-center justify-center font-display font-bold text-[#0D0D15]/40 text-xs" />
+                        <Pagination.Ellipsis className="w-9 h-9 flex items-center justify-center font-display font-bold text-ink/40 text-xs" />
                       </Pagination.Item>
                     ) : (
                       <Pagination.Item key={item}>
@@ -382,8 +382,8 @@ export default function BrowseBooksPage({
                           className={`
                             w-9 h-9 flex items-center justify-center rounded-lg border-2 font-display font-bold text-xs transition-all cursor-pointer
                             ${item === currentPage
-                              ? "bg-[#E85D35] text-[#F0E3CE] border-[#0D0D15] shadow-[3px_3px_0px_#2A4056] -translate-y-0.5"
-                              : "bg-[#F0E3CE] text-[#0D0D15] border-[#0D0D15]/20 hover:border-[#0D0D15] hover:shadow-[2px_2px_0px_#2A4056] hover:-translate-y-0.5"
+                              ? "bg-sun text-paper border-ink shadow-[3px_3px_0px_#2A4056] -translate-y-0.5"
+                              : "bg-[#F0E3CE] text-ink border-ink/20 hover:border-ink hover:shadow-[2px_2px_0px_#2A4056] hover:-translate-y-0.5"
                             }
                             ${isPending ? "opacity-50" : ""}
                           `}
@@ -402,8 +402,8 @@ export default function BrowseBooksPage({
                       className={`
                         inline-flex items-center gap-1.5 px-4 py-2 rounded-lg border-2 font-display font-bold text-[10px] uppercase tracking-widest transition-all
                         ${currentPage === totalPages || isPending
-                          ? "border-[#0D0D15]/15 text-[#0D0D15]/30 cursor-not-allowed bg-transparent"
-                          : "border-[#0D0D15] text-[#0D0D15] bg-[#F0E3CE] hover:bg-[#0D0D15] hover:text-[#F0E3CE] shadow-[3px_3px_0px_#2A4056] hover:-translate-y-0.5 cursor-pointer"
+                          ? "border-ink/15 text-ink/30 cursor-not-allowed bg-transparent"
+                          : "border-ink text-ink bg-[#F0E3CE] hover:bg-[#0D0D15] hover:text-paper shadow-[3px_3px_0px_#2A4056] hover:-translate-y-0.5 cursor-pointer"
                         }
                       `}
                     >
@@ -417,7 +417,7 @@ export default function BrowseBooksPage({
                 </Pagination.Content>
 
                 {/* Summary */}
-                <Pagination.Summary className="font-display text-[10px] font-bold uppercase tracking-widest text-[#0D0D15]/50 text-center mt-3 block">
+                <Pagination.Summary className="font-display text-[10px] font-bold uppercase tracking-widest text-ink/50 text-center mt-3 block">
                   Page {currentPage} of {totalPages} — {total} scrolls total
                 </Pagination.Summary>
 
