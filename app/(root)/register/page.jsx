@@ -4,7 +4,7 @@ import { authClient } from "@/app/lib/auth-client";
 import { Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const WaveCrestIcon = () => (
@@ -88,6 +88,17 @@ export default function RegisterPage() {
     const [submitted, setSubmitted] = useState(false);
 
     const router = useRouter()
+
+    const {
+        data: session,
+        isPending, //loading state
+        error, //error object
+        refetch //refetch the session
+    } = authClient.useSession()
+
+    if (session) {
+        redirect('/')
+    }
 
     const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
 

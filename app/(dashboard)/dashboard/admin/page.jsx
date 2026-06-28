@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { getAllTrans } from '@/app/lib/api/transactions';
 import { getAllUsers } from '@/app/lib/api/users';
 import { getAllWriters } from '@/app/lib/api/writers';
@@ -144,13 +146,12 @@ function DonutChart({ genres }) {
     const STROKE = 16;    // ring thickness
     const CIRCUMFERENCE = 2 * Math.PI * R; // ≈ 188.5
 
-    let offset = 0;
-    const segments = genres.map((g, i) => {
+    const segments = genres.reduce((acc, g, i) => {
+        const offset = acc.length ? acc[acc.length - 1].offset + acc[acc.length - 1].dash : 0;
         const dash = (g.pct / 100) * CIRCUMFERENCE;
-        const seg = { ...g, dash, offset, color: GENRE_COLORS[i % GENRE_COLORS.length] };
-        offset += dash;
-        return seg;
-    });
+        acc.push({ ...g, dash, offset, color: GENRE_COLORS[i % GENRE_COLORS.length] });
+        return acc;
+    }, []);
 
     return (
         <>

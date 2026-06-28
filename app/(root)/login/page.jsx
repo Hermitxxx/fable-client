@@ -6,7 +6,7 @@ import { GiWaveCrest, GiOldBricks } from "react-icons/gi";
 import { RiGalleryLine, RiCompassDiscoverLine } from "react-icons/ri";
 import { FiMail, FiLock, FiEye, FiEyeOff, FiArrowRight } from "react-icons/fi";
 import { authClient } from "@/app/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { alertToast } from "@/components/AlertToast";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
@@ -15,6 +15,17 @@ export default function LoginPage() {
     const [passwordVisible, setPasswordVisible] = useState(false);
 
     const router = useRouter()
+
+    const {
+        data: session,
+        isPending, //loading state
+        error, //error object
+        refetch //refetch the session
+    } = authClient.useSession()
+
+    if (session) {
+        redirect('/')
+    }
 
     const togglePasswordVisibility = () => setPasswordVisible(!passwordVisible);
 
