@@ -11,7 +11,7 @@ import { AlertCircleIcon, Check, Trash2, X } from "lucide-react";
  *
  * Requires <Toaster position="top-right" /> mounted once in your layout.
  */
-export function alertToast(error, { duration = 4000 } = {},) {
+export function alertToast(msg, { duration = 4000 } = {},) {
     toast.custom(
         (t) => (
             <div
@@ -27,7 +27,7 @@ export function alertToast(error, { duration = 4000 } = {},) {
 
                 <div className="min-w-0 flex-1 pt-0.5">
                     <p className="text-[0.95rem] font-semibold leading-tight text-ink">
-                        {error}
+                        {msg}
                     </p>
                 </div>
 

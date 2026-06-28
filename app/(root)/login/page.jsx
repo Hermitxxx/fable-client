@@ -25,11 +25,11 @@ export default function LoginPage() {
                 email: data.email, // required
                 password: data.password, // required
                 rememberMe: true,
-                callbackURL: '/'
             });
 
             if (response) {
                 router.push('/')
+                alertToast('Login successful')
             }
 
             if (error) {
